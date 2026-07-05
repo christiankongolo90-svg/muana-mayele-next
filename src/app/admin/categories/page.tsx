@@ -51,8 +51,12 @@ export default function AdminCategoriesPage() {
     finally { setSaving(false); }
   }
 
-  async function handleDelete(id: number) {
-    if (!user || !confirm('Supprimer cette categorie ?')) return;
+  async function handleDelete(id: number, questionCount: number) {
+    if (questionCount > 0) {
+      alert(`Impossible de supprimer cette catégorie car elle contient ${questionCount} question(s). Supprimez d'abord les questions.`);
+      return;
+    }
+    if (!user || !confirm('Supprimer cette catégorie ?')) return;
     try { await adminDeleteCategory(user.id, id); load(); } catch (err: any) { alert(err.message); }
   }
 
@@ -103,7 +107,7 @@ export default function AdminCategoriesPage() {
                 <div className="flex gap-1">
                   <button onClick={() => openEdit(cat)} className="text-xs text-primary hover:underline">Modifier</button>
                   <span className="text-gray-300">|</span>
-                  <button onClick={() => handleDelete(cat.id)} className="text-xs text-red hover:underline">Supprimer</button>
+                  <button onClick={() => handleDelete(cat.id, Number(cat.question_count || 0))} className={`text-xs hover:underline ${Number(cat.question_count || 0) > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-red'}`}>Supprimer</button>
                 </div>
               </div>
               <h4 className="font-semibold text-dark mb-1">{cat.name}</h4>

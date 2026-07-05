@@ -34,14 +34,38 @@ export default function AdminUsersPage() {
     } catch (err: any) { alert(err.message); }
   }
 
-  function exportCSV() {
-    const headers = ['ID', 'Nom', 'Email', 'Telephone', 'Code Pays', 'Profession', 'Quartier', 'Role'];
-    const rows = users.map(u => [u.id, u.full_name, u.email || '', u.phone, u.country_code, u.profession || '', u.neighborhood || '', u.role]);
-    const csv = [headers.join(','), ...rows.map(r => r.map((v: any) => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'utilisateurs.csv'; a.click();
-    URL.revokeObjectURL(url);
+  const [exporting, setExporting] = useState(false);
+
+  async function exportCSV() {
+    if (!user) return;
+    setExporting(true);
+    try {
+      // Fetch ALL users across all pages
+      const allUsers: any[] = [];
+      let p = 1, totalPages = 1;
+      do {
+        const data = await adminGetUsers(user.id, { page: p, limit: 100, search: '' });
+        allUsers.push(...data.users);
+        totalPages = data.pagination.pages;
+        p++;
+      } while (p <= totalPages);
+
+      const BOM = '\uFEFF';
+      const headers = ['ID', 'Nom', 'Code Pays', 'Téléphone', 'Email', 'Profession', 'Quartier/Ville', 'Rôle', "Date d'inscription"];
+      const rows = allUsers.map(u => [
+        u.id, `"${(u.full_name || '').replace(/"/g, '""')}"`, `"${u.country_code || ''}"`,
+        `"${u.phone || ''}"`, `"${(u.email || '').replace(/"/g, '""')}"`,
+        `"${(u.profession || '').replace(/"/g, '""')}"`, `"${(u.neighborhood || '').replace(/"/g, '""')}"`,
+        u.role || 'user', `"${u.created_at || ''}"`
+      ]);
+      const csv = BOM + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = `utilisateurs_muana_mayele_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+    } catch { alert("Erreur lors de l'exportation"); }
+    finally { setExporting(false); }
   }
 
   return (
@@ -51,8 +75,8 @@ export default function AdminUsersPage() {
         <div className="flex-1">
           <input type="text" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Rechercher par nom, email ou telephone..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" />
         </div>
-        <button onClick={exportCSV} className="bg-green-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-green-700 transition-colors whitespace-nowrap">
-          &#x1F4E5; Exporter CSV
+        <button onClick={exportCSV} disabled={exporting} className="bg-green-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-green-700 transition-colors whitespace-nowrap disabled:opacity-50">
+          {exporting ? 'Exportation...' : '📥 Exporter Excel'}
         </button>
       </div>
 

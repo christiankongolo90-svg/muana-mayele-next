@@ -27,7 +27,7 @@ export default function AdminDashboard() {
     { label: 'Utilisateurs', value: stats.totalUsers, icon: '\u{1F465}', color: 'bg-blue-50 text-blue-600' },
     { label: 'Questions', value: stats.totalQuestions, icon: '\u2753', color: 'bg-purple-50 text-purple-600' },
     { label: 'Sessions', value: stats.totalSessions, icon: '\u{1F3AE}', color: 'bg-green-50 text-green-600' },
-    { label: 'Completees', value: stats.completedSessions, icon: '\u2705', color: 'bg-emerald-50 text-emerald-600' },
+    { label: 'Complétées', value: `${stats.completedSessions}${stats.totalSessions > 0 ? ` (${Math.round(stats.completedSessions / stats.totalSessions * 100)}%)` : ''}`, icon: '\u2705', color: 'bg-emerald-50 text-emerald-600' },
     { label: 'Score moyen', value: stats.averageScore, icon: '\u{1F4CA}', color: 'bg-orange-50 text-orange-600' },
   ];
 
@@ -47,7 +47,10 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent users */}
         <div className="bg-white rounded-xl shadow-sm p-5">
-          <h3 className="font-semibold text-dark mb-4">Utilisateurs recents</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-dark">Utilisateurs récents</h3>
+            <a href="/admin/users" className="text-xs text-primary hover:underline">Voir tout →</a>
+          </div>
           {stats.recentUsers?.length > 0 ? (
             <div className="space-y-3">
               {stats.recentUsers.map((u: any) => (
@@ -58,6 +61,7 @@ export default function AdminDashboard() {
                     <p className="text-xs text-gray-400">{u.country_code} {u.phone}</p>
                   </div>
                   {u.role === 'admin' && <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-medium">Admin</span>}
+                  <a href={`/admin/users/${u.id}`} className="text-xs text-primary hover:underline">Voir</a>
                 </div>
               ))}
             </div>
@@ -68,7 +72,10 @@ export default function AdminDashboard() {
 
         {/* Recent sessions */}
         <div className="bg-white rounded-xl shadow-sm p-5">
-          <h3 className="font-semibold text-dark mb-4">Sessions recentes</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-dark">Sessions récentes</h3>
+            <a href="/admin/sessions" className="text-xs text-primary hover:underline">Voir tout →</a>
+          </div>
           {stats.recentSessions?.length > 0 ? (
             <div className="space-y-3">
               {stats.recentSessions.map((s: any) => (

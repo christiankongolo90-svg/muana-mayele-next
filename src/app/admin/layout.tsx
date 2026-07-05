@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 
 const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: '\u{1F4CA}' },
+  { href: '/admin/dashboard', label: 'Tableau de bord', icon: '\u{1F4CA}' },
   { href: '/admin/users', label: 'Utilisateurs', icon: '\u{1F465}' },
   { href: '/admin/questions', label: 'Questions', icon: '\u2753' },
   { href: '/admin/categories', label: 'Categories', icon: '\u{1F4C1}' },
