@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { adminGetStats } from '@/lib/api';
 
@@ -24,11 +25,11 @@ export default function AdminDashboard() {
   if (!stats) return <p className="text-gray-500 py-10 text-center">Erreur lors du chargement des statistiques.</p>;
 
   const cards = [
-    { label: 'Utilisateurs', value: stats.totalUsers, icon: '\u{1F465}', color: 'bg-blue-50 text-blue-600' },
-    { label: 'Questions', value: stats.totalQuestions, icon: '\u2753', color: 'bg-purple-50 text-purple-600' },
-    { label: 'Sessions', value: stats.totalSessions, icon: '\u{1F3AE}', color: 'bg-green-50 text-green-600' },
-    { label: 'Complétées', value: `${stats.completedSessions}${stats.totalSessions > 0 ? ` (${Math.round(stats.completedSessions / stats.totalSessions * 100)}%)` : ''}`, icon: '\u2705', color: 'bg-emerald-50 text-emerald-600' },
-    { label: 'Score moyen', value: stats.averageScore, icon: '\u{1F4CA}', color: 'bg-orange-50 text-orange-600' },
+    { label: 'Utilisateurs', value: stats.totalUsers, icon: '\u{1F465}', color: 'bg-blue-50 text-blue-600', href: '/admin/users' },
+    { label: 'Questions', value: stats.totalQuestions, icon: '❓', color: 'bg-purple-50 text-purple-600', href: '/admin/questions' },
+    { label: 'Sessions', value: stats.totalSessions, icon: '\u{1F3AE}', color: 'bg-green-50 text-green-600', href: '/admin/sessions' },
+    { label: 'Complétées', value: `${stats.completedSessions}${stats.totalSessions > 0 ? ` (${Math.round(stats.completedSessions / stats.totalSessions * 100)}%)` : ''}`, icon: '✅', color: 'bg-emerald-50 text-emerald-600', href: '/admin/sessions' },
+    { label: 'Score moyen', value: stats.averageScore, icon: '\u{1F4CA}', color: 'bg-orange-50 text-orange-600', href: '/admin/sessions' },
   ];
 
   return (
@@ -36,11 +37,12 @@ export default function AdminDashboard() {
       {/* Stats cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {cards.map(c => (
-          <div key={c.label} className="bg-white rounded-xl shadow-sm p-4">
+          <Link key={c.label} href={c.href} className="bg-white rounded-xl shadow-sm p-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer block no-underline">
             <div className={`w-10 h-10 rounded-lg ${c.color} flex items-center justify-center text-lg mb-3`}>{c.icon}</div>
             <p className="text-2xl font-bold text-dark">{c.value}</p>
             <p className="text-xs text-gray-500">{c.label}</p>
-          </div>
+            <p className="text-xs text-primary mt-2 font-medium">Voir tout &rarr;</p>
+          </Link>
         ))}
       </div>
 
@@ -48,8 +50,8 @@ export default function AdminDashboard() {
         {/* Recent users */}
         <div className="bg-white rounded-xl shadow-sm p-5">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-dark">Utilisateurs récents</h3>
-            <a href="/admin/users" className="text-xs text-primary hover:underline">Voir tout →</a>
+            <h3 className="font-semibold text-dark">Utilisateurs r&eacute;cents</h3>
+            <Link href="/admin/users" className="text-xs text-primary hover:underline">Voir tout &rarr;</Link>
           </div>
           {stats.recentUsers?.length > 0 ? (
             <div className="space-y-3">
@@ -61,7 +63,7 @@ export default function AdminDashboard() {
                     <p className="text-xs text-gray-400">{u.country_code} {u.phone}</p>
                   </div>
                   {u.role === 'admin' && <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-medium">Admin</span>}
-                  <a href={`/admin/users/${u.id}`} className="text-xs text-primary hover:underline">Voir</a>
+                  <Link href={`/admin/users/${u.id}`} className="text-xs text-primary hover:underline">Voir</Link>
                 </div>
               ))}
             </div>
@@ -73,8 +75,8 @@ export default function AdminDashboard() {
         {/* Recent sessions */}
         <div className="bg-white rounded-xl shadow-sm p-5">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-dark">Sessions récentes</h3>
-            <a href="/admin/sessions" className="text-xs text-primary hover:underline">Voir tout →</a>
+            <h3 className="font-semibold text-dark">Sessions r&eacute;centes</h3>
+            <Link href="/admin/sessions" className="text-xs text-primary hover:underline">Voir tout &rarr;</Link>
           </div>
           {stats.recentSessions?.length > 0 ? (
             <div className="space-y-3">
@@ -86,6 +88,7 @@ export default function AdminDashboard() {
                     <p className="text-xs text-gray-400">{s.correct_answers}/{s.total_questions} - {s.total_points} pts</p>
                   </div>
                   <span className="text-xs text-gray-400">{new Date(s.started_at).toLocaleDateString('fr-FR')}</span>
+                  <Link href={`/admin/sessions/${s.id}`} className="text-xs text-primary hover:underline">Voir</Link>
                 </div>
               ))}
             </div>
