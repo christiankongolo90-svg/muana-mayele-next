@@ -3,7 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { getQuizSettings, type QuizSettings } from '@/lib/api';
+import { getQuizSettings, getSiteContent, type QuizSettings } from '@/lib/api';
+
+function resolveImageUrl(value: string): string {
+  if (!value) return '/person_hero.png';
+  if (value.startsWith('http')) return value;
+  if (value.startsWith('uploads/')) return `/${value}`;
+  return `/${value}`;
+}
 
 export default function Hero() {
   const { user } = useAuth();
@@ -12,6 +19,7 @@ export default function Hero() {
   const [checking, setChecking] = useState(true);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [hasCountdown, setHasCountdown] = useState(false);
+  const [heroImage, setHeroImage] = useState('/person_hero.png');
 
   useEffect(() => {
     getQuizSettings()
@@ -23,6 +31,16 @@ export default function Hero() {
       })
       .catch(() => {})
       .finally(() => setChecking(false));
+
+    getSiteContent()
+      .then(data => {
+        const items = data?.content || [];
+        const heroImg = items.find((c: any) => c.section === 'hero' && c.content_key === 'image');
+        if (heroImg?.content_value) {
+          setHeroImage(resolveImageUrl(heroImg.content_value));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const updateCountdown = useCallback(() => {
@@ -131,7 +149,7 @@ export default function Hero() {
           {/* Image */}
           <div className="relative flex justify-center lg:justify-end">
             <div className="relative w-[280px] sm:w-[360px] lg:w-[420px]">
-              <img src="/person_hero.png" alt="Quiz participant" className="w-full h-auto relative z-10" loading="eager" />
+              <img src={heroImage} alt="Quiz participant" className="w-full h-auto relative z-10" loading="eager" />
               <span className="absolute top-4 left-0 text-6xl text-gold/30 font-bold animate-[float_3s_ease-in-out_infinite] z-0">?</span>
               <span className="absolute top-1/3 -right-4 text-5xl text-gold/20 font-bold animate-[float_4s_ease-in-out_infinite_0.5s] z-0">?</span>
               <span className="absolute bottom-1/4 -left-2 text-4xl text-gold/25 font-bold animate-[float_3.5s_ease-in-out_infinite_1s] z-0">?</span>
