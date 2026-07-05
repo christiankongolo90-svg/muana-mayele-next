@@ -14,7 +14,7 @@ export default function Footer() {
               <span>Muana Mayele</span>
             </a>
             <p className="text-white/60 text-sm leading-relaxed">
-              Le quiz qui met des etoiles dans vos tetes.
+              Le quiz qui met des étoiles dans vos têtes.
             </p>
           </div>
 
@@ -57,7 +57,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-6 text-center">
-          <p className="text-white/40 text-sm">&copy; {year} Muana Mayele. Tous droits reserves.</p>
+          <p className="text-white/40 text-sm">&copy; {year} Muana Mayele. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

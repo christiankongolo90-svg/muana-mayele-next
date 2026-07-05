@@ -32,29 +32,29 @@ export default function ProfilePage() {
 
   function formatDate(dateStr: string) {
     try {
-      return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+      return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch { return dateStr; }
   }
 
   function formatTime(seconds: number) {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
+    return `${m}m ${s}s`;
   }
 
-  function getRankSuffix(r: number) { return r === 1 ? 'er' : 'e'; }
+  function getRankSuffix(r: number) { return r === 1 ? 'er' : 'ème'; }
 
   function getScoreClass(score: number) {
-    if (score >= 750) return 'excellent';
-    if (score >= 500) return 'good';
-    if (score >= 250) return 'average';
+    if (score >= 180) return 'excellent';
+    if (score >= 140) return 'good';
+    if (score >= 100) return 'average';
     return 'low';
   }
 
   function getScoreBadge(score: number) {
-    if (score >= 750) return '\u{1F31F}';
-    if (score >= 500) return '\u{1F44D}';
-    if (score >= 250) return '\u{1F4C8}';
+    if (score >= 180) return '\u{1F31F}';
+    if (score >= 140) return '\u{1F44D}';
+    if (score >= 100) return '\u{1F4C8}';
     return '\u{1F4AA}';
   }
 
@@ -76,7 +76,7 @@ export default function ProfilePage() {
             <div className="text-center py-20">
               <span className="text-4xl block mb-3">&#x1F615;</span>
               <p className="text-gray-500 mb-4">{error}</p>
-              <button onClick={loadProfile} className="bg-primary text-white rounded-full px-6 py-2.5 font-semibold text-sm hover:bg-primary-dark">Reessayer</button>
+              <button onClick={loadProfile} className="bg-primary text-white rounded-full px-6 py-2.5 font-semibold text-sm hover:bg-primary-dark">Réessayer</button>
             </div>
           )}
 
@@ -104,8 +104,8 @@ export default function ProfilePage() {
                     { icon: '\u{1F3C6}', label: 'Classement', value: profile.stats.rank ? `${profile.stats.rank}${getRankSuffix(profile.stats.rank)}` : '--', color: 'bg-yellow-50' },
                     { icon: '\u2B50', label: 'Meilleur Score', value: profile.stats.best_score, color: 'bg-orange-50' },
                     { icon: '\u{1F3AF}', label: 'Points Totaux', value: profile.stats.total_points, color: 'bg-blue-50' },
-                    { icon: '\u{1F4DD}', label: 'Quiz Joues', value: profile.stats.total_quizzes, color: 'bg-purple-50' },
-                    { icon: '\u2705', label: 'Precision', value: `${profile.stats.accuracy}%`, color: 'bg-green-50' },
+                    { icon: '\u{1F4DD}', label: 'Quiz Joués', value: profile.stats.total_quizzes, color: 'bg-purple-50' },
+                    { icon: '\u2705', label: 'Précision', value: `${profile.stats.accuracy}%`, color: 'bg-green-50' },
                     { icon: '\u{1F4CA}', label: 'Moyenne', value: profile.stats.average_score, color: 'bg-pink-50' },
                   ].map(stat => (
                     <div key={stat.label} className={`${stat.color} rounded-xl p-4 text-center`}>
@@ -123,7 +123,7 @@ export default function ProfilePage() {
                 {profile.history.length === 0 ? (
                   <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
                     <span className="text-3xl block mb-2">&#x1F3AE;</span>
-                    <p className="text-gray-500 mb-4">Aucun quiz complete pour le moment</p>
+                    <p className="text-gray-500 mb-4">Aucun quiz complété pour le moment</p>
                     <button onClick={() => router.push('/quiz')} className="bg-primary text-white rounded-full px-6 py-2.5 font-semibold text-sm hover:bg-primary-dark">Commencer mon premier quiz</button>
                   </div>
                 ) : (

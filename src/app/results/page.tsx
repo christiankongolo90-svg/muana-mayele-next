@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import { getLeaderboard } from '@/lib/api';
 
 interface ResultsData {
   results: {
@@ -30,6 +31,7 @@ export default function ResultsPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<ResultsData | null>(null);
+  const [userRank, setUserRank] = useState<{ rank: number; total: number } | null>(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('quiz_results');
@@ -39,6 +41,17 @@ export default function ResultsPage() {
       router.replace('/');
     }
   }, [router]);
+
+  useEffect(() => {
+    if (!user) return;
+    getLeaderboard(100, user.id)
+      .then(lb => {
+        if (lb.user_rank) {
+          setUserRank({ rank: lb.user_rank.rank, total: lb.total || lb.leaderboard?.length || 0 });
+        }
+      })
+      .catch(() => {});
+  }, [user]);
 
   if (!data) {
     return (
@@ -51,12 +64,12 @@ export default function ResultsPage() {
   const { results, answers } = data;
   const pct = results.percentage;
 
-  let grade = 'A ameliorer';
+  let grade = 'À améliorer';
   let gradeColor = 'text-red';
-  if (pct >= 90) { grade = 'Excellent'; gradeColor = 'text-gold'; }
-  else if (pct >= 75) { grade = 'Tres bien'; gradeColor = 'text-green-500'; }
-  else if (pct >= 50) { grade = 'Bien'; gradeColor = 'text-blue-500'; }
-  else if (pct >= 30) { grade = 'Passable'; gradeColor = 'text-orange-500'; }
+  if (pct >= 90) { grade = 'Excellent !'; gradeColor = 'text-gold'; }
+  else if (pct >= 75) { grade = 'Très bien !'; gradeColor = 'text-green-500'; }
+  else if (pct >= 60) { grade = 'Bien !'; gradeColor = 'text-blue-500'; }
+  else if (pct >= 50) { grade = 'Passable'; gradeColor = 'text-orange-500'; }
 
   let trophy = '\u{1F949}'; // bronze
   if (pct >= 75) trophy = '\u{1F3C6}'; // gold
@@ -98,8 +111,16 @@ export default function ResultsPage() {
         {/* Score Card */}
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 text-center mb-8 animate-[slideUp_0.5s_ease]">
           <span className="text-5xl block mb-2">{trophy}</span>
-          <h1 className="text-2xl font-bold text-dark mb-2">Quiz Termine !</h1>
+          <h1 className="text-2xl font-bold text-dark mb-2">Quiz Terminé !</h1>
           <p className={`text-lg font-semibold ${gradeColor} mb-6`}>{grade}</p>
+
+          {/* Rank badge */}
+          {userRank && (
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              <span>🏅</span>
+              <span>{userRank.rank}{userRank.rank === 1 ? 'er' : 'ème'} sur {userRank.total} participants</span>
+            </div>
+          )}
 
           {/* Circular progress */}
           <div className="relative w-32 h-32 mx-auto mb-6">
@@ -158,7 +179,7 @@ export default function ResultsPage() {
         {/* Answer Review */}
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 animate-[slideUp_0.7s_ease]">
           <h2 className="text-lg font-bold text-dark mb-4 flex items-center gap-2">
-            <span>&#x1F4CB;</span> Revision des reponses
+            <span>&#x1F4CB;</span> Révision des réponses
           </h2>
 
           <div className="space-y-4">

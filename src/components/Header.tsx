@@ -99,7 +99,7 @@ export default function Header() {
             <div className={`${menuOpen ? 'flex' : 'hidden'} sm:flex absolute sm:relative top-16 sm:top-0 left-0 right-0 sm:left-auto sm:right-auto flex-col sm:flex-row items-stretch sm:items-center gap-1 sm:gap-6 bg-primary sm:bg-transparent p-4 sm:p-0 shadow-lg sm:shadow-none`}>
               <Link href="/" className="text-white/80 hover:text-white py-2 sm:py-0 transition-colors text-sm font-medium" onClick={() => setMenuOpen(false)}>Accueil</Link>
               <a href="#classement" className="text-white/80 hover:text-white py-2 sm:py-0 transition-colors text-sm font-medium" onClick={() => setMenuOpen(false)}>Classement</a>
-              <a href="#regles" className="text-white/80 hover:text-white py-2 sm:py-0 transition-colors text-sm font-medium" onClick={() => setMenuOpen(false)}>Regles</a>
+              <a href="#regles" className="text-white/80 hover:text-white py-2 sm:py-0 transition-colors text-sm font-medium" onClick={() => setMenuOpen(false)}>Règles</a>
 
               {user ? (
                 <div className="relative" ref={dropdownRef}>
@@ -158,12 +158,12 @@ export default function Header() {
                 <h2 className="text-xl font-bold text-dark mb-1">Connexion</h2>
                 <p className="text-gray-500 text-sm mb-6">Entrez votre numero pour recevoir un code par WhatsApp</p>
                 <form onSubmit={handleSendCode}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Telephone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Téléphone</label>
                   <div className="flex gap-2 mb-4">
                     <select value={loginCountry} onChange={e => setLoginCountry(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-2.5 text-sm bg-white w-28">
                       {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
                     </select>
-                    <input type="tel" value={loginPhone} onChange={e => setLoginPhone(e.target.value)} placeholder="Numero de telephone" className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" />
+                    <input type="tel" value={loginPhone} onChange={e => setLoginPhone(e.target.value)} placeholder="Numéro de téléphone" className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" />
                   </div>
                   {error && <p className="text-red text-sm mb-3 bg-red-50 p-2 rounded">{error}</p>}
                   <button type="submit" disabled={loading} className="w-full bg-primary text-white rounded-lg py-3 font-semibold text-sm hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
@@ -176,9 +176,9 @@ export default function Header() {
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-dark mb-1">Verification</h2>
+                <h2 className="text-xl font-bold text-dark mb-1">Vérification</h2>
                 <p className="text-gray-500 text-sm mb-6">
-                  Code envoye au {selectedCountry?.flag} {loginCountry} {loginPhone}
+                  Code envoyé au {selectedCountry?.flag} {loginCountry} {loginPhone}
                 </p>
                 <form onSubmit={handleVerify}>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Code de verification</label>
@@ -190,7 +190,7 @@ export default function Header() {
                   )}
                   {error && <p className="text-red text-sm mb-3 bg-red-50 p-2 rounded">{error}</p>}
                   <button type="submit" disabled={loading || passcode.length !== 6} className="w-full bg-primary text-white rounded-lg py-3 font-semibold text-sm hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-                    {loading ? <><span className="spinner" /> Verification...</> : 'Verifier et continuer'}
+                    {loading ? <><span className="spinner" /> Verification...</> : 'Vérifier et continuer'}
                   </button>
                 </form>
                 <div className="text-center mt-4">

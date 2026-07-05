@@ -17,6 +17,7 @@ export default function QuizPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [correctAnswer, setCorrectAnswer] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(1200);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const completingRef = useRef(false);
@@ -41,7 +42,16 @@ export default function QuizPage() {
     try {
       const settings = await getQuizSettings();
       if (!settings.is_open) {
-        setError('Le quiz est actuellement ferme. Revenez plus tard.');
+        let msg = 'Le quiz est actuellement fermé. Revenez plus tard.';
+        if (settings.schedule?.next_session) {
+          const ns = settings.schedule.next_session;
+          const dayNames = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+          const dayName = dayNames[ns.day_of_week] || '';
+          const start = ns.start?.slice(0, 5) || '';
+          const end = ns.end?.slice(0, 5) || '';
+          msg = `Le quiz n'est pas encore ouvert. Prochaine session : ${dayName} de ${start} à ${end}.`;
+        }
+        setError(msg);
         setLoading(false);
         return;
       }
@@ -96,7 +106,8 @@ export default function QuizPage() {
   }, [loading, state.sessionId, state.isComplete]);
 
   async function handleSubmit() {
-    if (selectedAnswer === null || showFeedback || !state.sessionId) return;
+    if (selectedAnswer === null || showFeedback || isSubmitting || !state.sessionId) return;
+    setIsSubmitting(true);
     const question = state.questions[state.currentQuestionIndex];
     try {
       const res = await submitAnswer(state.sessionId, question.id, selectedAnswer);
@@ -113,16 +124,20 @@ export default function QuizPage() {
           setSelectedAnswer(null);
           setShowFeedback(false);
           setCorrectAnswer(null);
+          setIsSubmitting(false);
         }
       }, 1500);
     } catch (err: any) {
+      setIsSubmitting(false);
       setError(err.message);
     }
   }
 
   function quitQuiz() {
     if (state.sessionId && !state.isComplete) {
-      handleAutoComplete();
+      if (confirm('Êtes-vous sûr de vouloir quitter le quiz ? Votre progression sera perdue.')) {
+        handleAutoComplete();
+      }
     } else {
       router.push('/');
     }
@@ -166,7 +181,7 @@ export default function QuizPage() {
           <h2 className="text-xl font-bold text-dark mb-2">Oups!</h2>
           <p className="text-gray-500 mb-6">{error}</p>
           <button onClick={() => router.push('/')} className="bg-primary text-white rounded-full px-8 py-3 font-semibold hover:bg-primary-dark transition-colors">
-            Retour a l&apos;accueil
+            Retour à l&apos;accueil
           </button>
         </div>
       </div>
@@ -263,7 +278,7 @@ export default function QuizPage() {
               {showFeedback && (
                 <div className={`mt-4 flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium animate-[fadeIn_0.2s_ease] ${isCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                   <span className="text-xl">{isCorrect ? '\u{1F389}' : '\u{1F614}'}</span>
-                  <span>{isCorrect ? 'Bonne reponse ! +50 points' : 'Mauvaise reponse'}</span>
+                  <span>{isCorrect ? 'Bonne réponse ! +{state.pointsPerCorrect} points' : 'Mauvaise réponse'}</span>
                 </div>
               )}
 
@@ -274,7 +289,7 @@ export default function QuizPage() {
                   disabled={selectedAnswer === null}
                   className="w-full mt-6 bg-primary text-white rounded-xl py-3.5 font-semibold text-sm hover:bg-primary-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  Valider ma reponse
+                  Valider ma réponse
                 </button>
               )}
             </div>
@@ -289,7 +304,7 @@ export default function QuizPage() {
             let dotClass = 'bg-white/20';
             if (i === state.currentQuestionIndex) dotClass = 'bg-gold scale-125';
             else if (state.answers[i] !== null) {
-              dotClass = 'bg-green-400';
+              dotClass = state.answers[i]?.correct ? 'bg-green-400' : 'bg-red-400';
             }
             return <div key={q.id} className={`w-2.5 h-2.5 rounded-full transition-all ${dotClass}`} />;
           })}

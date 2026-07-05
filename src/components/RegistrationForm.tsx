@@ -108,7 +108,7 @@ export default function RegistrationForm() {
         ...(passcodeType === 'register' ? { full_name: formData.fullName } : {}),
       });
       setCountdown(res.expires_in || 300);
-      setSuccess('Code renvoye!');
+      setSuccess('Code renvoyé!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
@@ -167,9 +167,9 @@ export default function RegistrationForm() {
                     <select value={formData.countryCode} onChange={e => updateField('countryCode', e.target.value)} className="border border-gray-300 rounded-lg px-2 py-2.5 text-sm bg-white w-28">
                       {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
                     </select>
-                    <input type="tel" value={formData.phone} onChange={e => updateField('phone', e.target.value)} placeholder="Numero de telephone" className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" required />
+                    <input type="tel" value={formData.phone} onChange={e => updateField('phone', e.target.value)} placeholder="Numéro de téléphone" className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" required />
                   </div>
-                  <span className="text-xs text-gray-400 mt-1 block">Le code sera envoye par WhatsApp</span>
+                  <span className="text-xs text-gray-400 mt-1 block">Le code sera envoyé par WhatsApp</span>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Adresse e-mail</label>
@@ -184,7 +184,7 @@ export default function RegistrationForm() {
                   {loading ? <><span className="spinner" /> Envoi du code...</> : "S'inscrire"}
                 </button>
                 <p className="text-center text-sm text-gray-500">
-                  Deja inscrit ? <button type="button" onClick={() => { setStep('login'); setError(''); }} className="text-primary font-medium hover:underline">Se connecter</button>
+                  Déjà inscrit ? <button type="button" onClick={() => { setStep('login'); setError(''); }} className="text-primary font-medium hover:underline">Se connecter</button>
                 </p>
               </form>
             </>
@@ -200,9 +200,9 @@ export default function RegistrationForm() {
                     <select value={formData.countryCode} onChange={e => updateField('countryCode', e.target.value)} className="border border-gray-300 rounded-lg px-2 py-2.5 text-sm bg-white w-28">
                       {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
                     </select>
-                    <input type="tel" value={formData.phone} onChange={e => updateField('phone', e.target.value)} placeholder="Numero de telephone" className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" required />
+                    <input type="tel" value={formData.phone} onChange={e => updateField('phone', e.target.value)} placeholder="Numéro de téléphone" className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" required />
                   </div>
-                  <span className="text-xs text-gray-400 mt-1 block">Un code sera envoye par WhatsApp</span>
+                  <span className="text-xs text-gray-400 mt-1 block">Un code sera envoyé par WhatsApp</span>
                 </div>
                 {error && <p className="text-red text-sm bg-red-50 p-2.5 rounded-lg">{error}</p>}
                 <button type="submit" disabled={loading} className="w-full bg-primary text-white rounded-lg py-3 font-semibold text-sm hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
@@ -217,9 +217,9 @@ export default function RegistrationForm() {
 
           {step === 'passcode' && (
             <>
-              <h2 className="text-xl font-bold text-dark mb-2 text-center">Verification</h2>
+              <h2 className="text-xl font-bold text-dark mb-2 text-center">Vérification</h2>
               <div className="text-center mb-6">
-                <p className="text-gray-500 text-sm">Un code a 6 chiffres a ete envoye par WhatsApp au:</p>
+                <p className="text-gray-500 text-sm">Un code à 6 chiffres a été envoyé par WhatsApp au:</p>
                 <p className="font-semibold text-dark mt-1">{selectedCountry?.flag} {formData.countryCode} {formData.phone}</p>
               </div>
               <form onSubmit={handleVerify} className="space-y-4">
@@ -235,7 +235,7 @@ export default function RegistrationForm() {
                 {success && <p className="text-green-600 text-sm bg-green-50 p-2.5 rounded-lg">{success}</p>}
                 {error && <p className="text-red text-sm bg-red-50 p-2.5 rounded-lg">{error}</p>}
                 <button type="submit" disabled={loading || passcode.length !== 6} className="w-full bg-primary text-white rounded-lg py-3 font-semibold text-sm hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-                  {loading ? <><span className="spinner" /> Verification...</> : 'Verifier et continuer'}
+                  {loading ? <><span className="spinner" /> Verification...</> : 'Vérifier et continuer'}
                 </button>
                 <div className="flex items-center justify-center gap-3 text-sm">
                   <button type="button" onClick={resendCode} disabled={loading} className="text-primary hover:underline">Renvoyer le code</button>

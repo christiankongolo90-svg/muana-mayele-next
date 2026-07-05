@@ -3,12 +3,17 @@
 import { createContext, useContext, useState, useRef, useCallback, type ReactNode } from 'react';
 import type { ApiQuestion } from './api';
 
+interface AnswerRecord {
+  answer: number;
+  correct: boolean;
+}
+
 interface QuizState {
   sessionId: number | null;
   questions: ApiQuestion[];
   currentQuestionIndex: number;
   score: number;
-  answers: (number | null)[];
+  answers: (AnswerRecord | null)[];
   timeLimit: number;
   pointsPerCorrect: number;
   isComplete: boolean;
@@ -66,7 +71,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const recordAnswer = useCallback((index: number, answer: number | null, isCorrect: boolean) => {
     setState(prev => {
       const answers = [...prev.answers];
-      answers[index] = answer;
+      answers[index] = answer !== null ? { answer, correct: isCorrect } : null;
       return { ...prev, answers, score: prev.score + (isCorrect ? 1 : 0) };
     });
   }, []);

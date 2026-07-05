@@ -132,7 +132,7 @@ export default function Hero() {
                     </div>
                   )}
                   {!hasCountdown && !settings.schedule?.next_session && (
-                    <p className="text-white/70 text-sm mb-3">Le quiz est actuellement ferme. Revenez bientot !</p>
+                    <p className="text-white/70 text-sm mb-3">Le quiz est actuellement fermé. Revenez bientôt !</p>
                   )}
                 </div>
               )}
