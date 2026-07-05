@@ -24,8 +24,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><a href="/" className="text-white/60 hover:text-white text-sm transition-colors">Accueil</a></li>
               <li><a href="#classement" className="text-white/60 hover:text-white text-sm transition-colors">Classement</a></li>
-              <li><a href="#regles" className="text-white/60 hover:text-white text-sm transition-colors">Comment jouer</a></li>
-              <li><a href="#inscription" className="text-white/60 hover:text-white text-sm transition-colors">S&apos;inscrire</a></li>
+              <li><a href="#regles" className="text-white/60 hover:text-white text-sm transition-colors">Règles</a></li>
             </ul>
           </div>
 
@@ -33,9 +32,9 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-gold mb-3 text-sm uppercase tracking-wider">Aide</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-white/60 hover:text-white text-sm transition-colors">FAQ</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white text-sm transition-colors">Conditions d&apos;utilisation</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white text-sm transition-colors">Politique de confidentialité</a></li>
               <li><a href="#" className="text-white/60 hover:text-white text-sm transition-colors">Contact</a></li>
-              <li><a href="#" className="text-white/60 hover:text-white text-sm transition-colors">Conditions</a></li>
             </ul>
           </div>
 

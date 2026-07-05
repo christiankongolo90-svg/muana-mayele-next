@@ -132,8 +132,7 @@ export default function RegistrationForm() {
   }
 
   return (
-    <section id="inscription" className="py-16 bg-primary-darker">
-      <div className="max-w-md mx-auto px-4">
+    <div id="inscription">
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 animate-[fadeIn_0.3s_ease]">
 
           {step === 'form' && (
@@ -224,13 +223,13 @@ export default function RegistrationForm() {
               </div>
               <form onSubmit={handleVerify} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Code de verification</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Code de vérification</label>
                   <input type="tel" value={passcode} onChange={e => setPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" maxLength={6} inputMode="numeric" className="w-full border border-gray-300 rounded-lg px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" autoComplete="one-time-code" />
                 </div>
                 {countdown > 0 ? (
                   <p className="text-sm text-gray-500">Code valide pendant: <strong>{formatCountdown()}</strong></p>
                 ) : (
-                  <p className="text-sm text-red">Code expire</p>
+                  <p className="text-sm text-red">Code expiré</p>
                 )}
                 {success && <p className="text-green-600 text-sm bg-green-50 p-2.5 rounded-lg">{success}</p>}
                 {error && <p className="text-red text-sm bg-red-50 p-2.5 rounded-lg">{error}</p>}
@@ -240,13 +239,12 @@ export default function RegistrationForm() {
                 <div className="flex items-center justify-center gap-3 text-sm">
                   <button type="button" onClick={resendCode} disabled={loading} className="text-primary hover:underline">Renvoyer le code</button>
                   <span className="text-gray-300">|</span>
-                  <button type="button" onClick={() => { setStep(passcodeType === 'register' ? 'form' : 'login'); setPasscode(''); setError(''); }} className="text-primary hover:underline">Modifier le numero</button>
+                  <button type="button" onClick={() => { setStep(passcodeType === 'register' ? 'form' : 'login'); setPasscode(''); setError(''); }} className="text-primary hover:underline">Modifier le numéro</button>
                 </div>
               </form>
             </>
           )}
         </div>
-      </div>
-    </section>
+    </div>
   );
 }

@@ -127,7 +127,7 @@ export default function Header() {
                       )}
                       <div className="border-t border-gray-100 mt-1" />
                       <button onClick={() => { logout(); setUserDropdown(false); setMenuOpen(false); router.push('/'); }} className="w-full text-left px-4 py-2.5 hover:bg-red-50 text-sm flex items-center gap-3 text-red-600">
-                        <span>&#x1F6AA;</span> Deconnexion
+                        <span>&#x1F6AA;</span> Déconnexion
                       </button>
                     </div>
                   )}
@@ -156,7 +156,7 @@ export default function Header() {
             {loginStep === 'phone' ? (
               <>
                 <h2 className="text-xl font-bold text-dark mb-1">Connexion</h2>
-                <p className="text-gray-500 text-sm mb-6">Entrez votre numero pour recevoir un code par WhatsApp</p>
+                <p className="text-gray-500 text-sm mb-6">Entrez votre numéro pour recevoir un code par WhatsApp</p>
                 <form onSubmit={handleSendCode}>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Téléphone</label>
                   <div className="flex gap-2 mb-4">
@@ -181,12 +181,12 @@ export default function Header() {
                   Code envoyé au {selectedCountry?.flag} {loginCountry} {loginPhone}
                 </p>
                 <form onSubmit={handleVerify}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Code de verification</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Code de vérification</label>
                   <input type="text" value={passcode} onChange={e => setPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" maxLength={6} inputMode="numeric" className="w-full border border-gray-300 rounded-lg px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] mb-3 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" />
                   {countdown > 0 ? (
                     <p className="text-sm text-gray-500 mb-3">Expire dans: <strong>{formatCountdown()}</strong></p>
                   ) : (
-                    <p className="text-sm text-red mb-3">Code expire</p>
+                    <p className="text-sm text-red mb-3">Code expiré</p>
                   )}
                   {error && <p className="text-red text-sm mb-3 bg-red-50 p-2 rounded">{error}</p>}
                   <button type="submit" disabled={loading || passcode.length !== 6} className="w-full bg-primary text-white rounded-lg py-3 font-semibold text-sm hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
@@ -194,7 +194,7 @@ export default function Header() {
                   </button>
                 </form>
                 <div className="text-center mt-4">
-                  <button onClick={() => { setLoginStep('phone'); setPasscode(''); setError(''); }} className="text-primary text-sm hover:underline">&larr; Modifier le numero</button>
+                  <button onClick={() => { setLoginStep('phone'); setPasscode(''); setError(''); }} className="text-primary text-sm hover:underline">&larr; Modifier le numéro</button>
                 </div>
               </>
             )}

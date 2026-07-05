@@ -56,8 +56,8 @@ export default function Leaderboard() {
   }
 
   return (
-    <section id="classement" className="py-16 bg-primary-darker">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+    <div id="classement">
+      <div>
         <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-2 flex items-center justify-center gap-3">
           Classement
           <span className="inline-flex items-center gap-1.5 bg-red/90 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse uppercase tracking-wider">
@@ -142,6 +142,6 @@ export default function Leaderboard() {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }

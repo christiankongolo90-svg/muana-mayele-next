@@ -1,29 +1,62 @@
 'use client';
 
-const steps = [
-  { number: 1, title: 'Inscrivez-vous', description: 'Créez votre compte en quelques secondes avec votre numéro de téléphone.' },
-  { number: 2, title: 'Attendez le Quiz', description: 'Le quiz est disponible à des horaires précis. Consultez le programme.' },
-  { number: 3, title: 'Répondez aux questions', description: '20 questions en 20 minutes. Chaque bonne réponse vaut 50 points.' },
-  { number: 4, title: 'Gagnez des points', description: 'Accumulez des points et grimpez dans le classement pour remporter des prix.' },
+import { useState, useEffect } from 'react';
+import { getSiteContent } from '@/lib/api';
+
+const defaultSteps = [
+  { title: 'Inscrivez-vous', description: 'Créez gratuitement un compte participant de façon simple et sécurisée.' },
+  { title: 'Participez au quiz en direct', description: 'Répondez aux questions dans le temps imparti.' },
+  { title: 'Accumulez des points', description: 'Gagnez des points en répondant correctement et rapidement!' },
+  { title: 'Gagnez 50 $', description: 'Le meilleur joueur remporte le prix!' },
 ];
 
 export default function HowItWorks() {
+  const [title, setTitle] = useState('Comment ça marche ?');
+  const [steps, setSteps] = useState(defaultSteps);
+
+  useEffect(() => {
+    getSiteContent()
+      .then(data => {
+        const items = data?.content || [];
+        const get = (section: string, key: string, fallback: string) => {
+          const item = items.find((c: any) => c.section === section && c.content_key === key);
+          return item?.content_value || fallback;
+        };
+
+        setTitle(get('how_it_works', 'section_title', 'Comment ça marche ?'));
+
+        const loaded: { title: string; description: string }[] = [];
+        for (let i = 1; i <= 20; i++) {
+          const t = get('how_it_works', `step_${i}_title`, '');
+          const d = get('how_it_works', `step_${i}_description`, '');
+          if (t) loaded.push({ title: t, description: d });
+        }
+        if (loaded.length > 0) setSteps(loaded);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
-    <section id="regles" className="py-16 bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-dark text-center mb-12">Comment ça marche ?</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {steps.map(step => (
-            <div key={step.number} className="text-center group">
-              <div className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center text-xl font-bold mx-auto mb-4 group-hover:bg-gold group-hover:text-primary-dark transition-colors shadow-lg">
-                {step.number}
+    <div id="regles">
+      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-white mb-8 flex items-center gap-2">
+          <span className="w-2 h-2 bg-gold rounded-full" />
+          {title}
+        </h2>
+        <div className="space-y-4">
+          {steps.map((step, i) => (
+            <div key={i} className="flex items-start gap-4 group hover:translate-x-1 transition-transform">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dark text-primary-dark flex items-center justify-center text-sm font-bold shrink-0 shadow-lg">
+                {i + 1}
               </div>
-              <h3 className="font-semibold text-dark text-base mb-2">{step.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{step.description}</p>
+              <div>
+                <h3 className="font-semibold text-white text-sm mb-1">{step.title}</h3>
+                <p className="text-white/60 text-xs leading-relaxed">{step.description}</p>
+              </div>
             </div>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
