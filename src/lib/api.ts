@@ -322,3 +322,39 @@ export async function adminUploadImage(adminId: number, contentId: number, file:
     body: formData,
   });
 }
+
+// Page Sections (Page Builder)
+export async function getPageSections() {
+  return request<{ sections: any[] }>('page-sections');
+}
+
+export async function adminGetPageSections(adminId: number) {
+  return request<{ sections: any[] }>('admin/page-sections', { headers: adminHeaders(adminId) });
+}
+
+export async function adminCreatePageSection(adminId: number, data: { section_type: string; title?: string; content?: string; settings?: any; sort_order?: number }) {
+  return request<{ section: any }>('admin/page-sections/create', { method: 'POST', headers: adminHeaders(adminId), body: JSON.stringify(data) });
+}
+
+export async function adminUpdatePageSection(adminId: number, data: { id: number; title?: string; content?: string; image_url?: string; settings?: any; is_visible?: boolean }) {
+  return request<{ section: any }>('admin/page-sections/update', { method: 'PUT', headers: adminHeaders(adminId), body: JSON.stringify(data) });
+}
+
+export async function adminDeletePageSection(adminId: number, id: number) {
+  return request<null>('admin/page-sections/delete', { method: 'DELETE', headers: adminHeaders(adminId), body: JSON.stringify({ id }) });
+}
+
+export async function adminReorderPageSections(adminId: number, order: number[]) {
+  return request<{ sections: any[] }>('admin/page-sections/reorder', { method: 'PUT', headers: adminHeaders(adminId), body: JSON.stringify({ order }) });
+}
+
+export async function adminUploadSectionImage(adminId: number, sectionId: number, file: File) {
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('section_id', String(sectionId));
+  return request<{ section: any; path: string }>('admin/page-sections/upload', {
+    method: 'POST',
+    headers: { 'X-Admin-User-Id': String(adminId) },
+    body: formData,
+  });
+}

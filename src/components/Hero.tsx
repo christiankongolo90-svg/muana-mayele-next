@@ -12,7 +12,7 @@ function resolveImageUrl(value: string): string {
   return `/${value}`;
 }
 
-export default function Hero() {
+export default function Hero({ heroImageSize }: { heroImageSize?: number } = {}) {
   const { user } = useAuth();
   const router = useRouter();
   const [settings, setSettings] = useState<QuizSettings | null>(null);
@@ -199,7 +199,7 @@ export default function Hero() {
 
           {/* Hero image */}
           <div className="relative flex justify-center lg:justify-end animate-[slideInRight_0.8s_ease_0.2s_backwards]">
-            <div className="relative w-[300px] sm:w-[380px] lg:w-[440px]">
+            <div className="relative" style={{ width: `min(${heroImageSize || 440}px, 90vw)` }}>
               {/* Glow ring behind image */}
               <div className="absolute inset-0 rounded-full animate-[glow-pulse_3s_ease-in-out_infinite]" style={{ filter: 'blur(40px)', background: 'radial-gradient(circle, rgba(255,184,0,0.2) 0%, transparent 70%)' }} />
 
