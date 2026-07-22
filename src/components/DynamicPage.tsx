@@ -10,7 +10,6 @@ import Leaderboard from '@/components/Leaderboard';
 import Prizes from '@/components/Prizes';
 import Benefits from '@/components/Benefits';
 import Community from '@/components/Community';
-import FinalCTA from '@/components/FinalCTA';
 
 function TextSection({ section }: { section: any }) {
   const bgColor = section.settings?.bgColor || 'transparent';
@@ -118,7 +117,7 @@ export default function DynamicPage() {
       <Prizes />
       <Benefits />
       <Community />
-      <FinalCTA />
+
     </>
   );
 }
@@ -145,7 +144,7 @@ function FallbackPage() {
       <Prizes />
       <Benefits />
       <Community />
-      <FinalCTA />
+
     </>
   );
 }
