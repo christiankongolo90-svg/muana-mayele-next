@@ -11,19 +11,27 @@ export default function AdminSessionsPage() {
   const [pagination, setPagination] = useState<any>({ page: 1, pages: 1, total: 0 });
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [dateFilter, setDateFilter] = useState('');
 
   const load = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const data = await adminGetSessions(user.id, { page, limit: 20 });
+      const data = await adminGetSessions(user.id, {
+        page,
+        limit: 20,
+        date: dateFilter || undefined,
+        sort: dateFilter ? 'points' : undefined,
+      });
       setSessions(data.sessions);
       setPagination(data.pagination);
     } catch {}
     finally { setLoading(false); }
-  }, [user, page]);
+  }, [user, page, dateFilter]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => { setPage(1); }, [dateFilter]);
 
   async function handleDelete(id: number) {
     if (!user || !confirm('Supprimer cette session ?')) return;
@@ -37,14 +45,37 @@ export default function AdminSessionsPage() {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-gray-500">{pagination.total} session(s) au total</p>
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-600">Date :</label>
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={e => setDateFilter(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+          />
+          {dateFilter && (
+            <button
+              onClick={() => setDateFilter('')}
+              className="text-xs text-red hover:underline font-medium"
+            >
+              Effacer
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-gray-500">
+          {pagination.total} session(s) {dateFilter ? `le ${new Date(dateFilter + 'T00:00').toLocaleDateString('fr-FR')}` : 'au total'}
+          {dateFilter && ' — triées par score'}
+        </p>
+      </div>
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-left">
-                <th className="px-4 py-3 font-medium text-gray-600">ID</th>
+                <th className="px-4 py-3 font-medium text-gray-600">{dateFilter ? '#' : 'ID'}</th>
                 <th className="px-4 py-3 font-medium text-gray-600">Joueur</th>
                 <th className="px-4 py-3 font-medium text-gray-600 hidden sm:table-cell">Score</th>
                 <th className="px-4 py-3 font-medium text-gray-600 hidden md:table-cell">Resultats</th>
@@ -57,17 +88,20 @@ export default function AdminSessionsPage() {
               {loading ? (
                 <tr><td colSpan={7} className="px-4 py-8 text-center"><div className="spinner spinner-dark mx-auto" /></td></tr>
               ) : sessions.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Aucune session</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">
+                  {dateFilter ? 'Aucune session pour cette date' : 'Aucune session'}
+                </td></tr>
               ) : (
-                sessions.map(s => {
+                sessions.map((s, index) => {
                   const answered = Number(s.live_answered || 0);
                   const correct = Number(s.live_correct || 0);
                   const points = Number(s.live_points || s.total_points || 0);
                   const isLive = !s.is_completed && answered > 0;
+                  const rank = (page - 1) * 20 + index + 1;
 
                   return (
                     <tr key={s.id} className="border-t border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3 text-gray-500">{s.id}</td>
+                      <td className="px-4 py-3 text-gray-500">{dateFilter ? rank : s.id}</td>
                       <td className="px-4 py-3">
                         <span className="font-medium text-dark">{s.full_name}</span>
                         <span className="block text-xs text-gray-400">{s.phone}</span>

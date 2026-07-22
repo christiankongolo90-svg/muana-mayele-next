@@ -280,11 +280,13 @@ export async function adminDeleteCategory(adminId: number, id: number) {
   return request<null>('admin/categories/delete', { method: 'DELETE', headers: adminHeaders(adminId), body: JSON.stringify({ id }) });
 }
 
-export async function adminGetSessions(adminId: number, params: { page?: number; limit?: number; user_id?: string } = {}) {
+export async function adminGetSessions(adminId: number, params: { page?: number; limit?: number; user_id?: string; date?: string; sort?: string } = {}) {
   const q = new URLSearchParams();
   if (params.page) q.set('page', String(params.page));
   if (params.limit) q.set('limit', String(params.limit));
   if (params.user_id) q.set('user_id', params.user_id);
+  if (params.date) q.set('date', params.date);
+  if (params.sort) q.set('sort', params.sort);
   return request<{ sessions: any[]; pagination: any }>(`admin/sessions?${q}`, { headers: adminHeaders(adminId) });
 }
 
