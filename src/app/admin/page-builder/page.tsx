@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-
-interface SectionSettings {
-  heroImageSize?: number;
-  bgColor?: string;
-  imageWidth?: number;
-  [key: string]: any;
-}
+import Header from '@/components/Header';
+import Hero from '@/components/Hero';
+import RegistrationForm from '@/components/RegistrationForm';
+import HowItWorks from '@/components/HowItWorks';
+import Leaderboard from '@/components/Leaderboard';
+import Footer from '@/components/Footer';
 
 interface PageSection {
   id: number;
@@ -18,617 +18,638 @@ interface PageSection {
   image_url: string;
   is_visible: boolean;
   sort_order: number;
-  settings: SectionSettings;
+  settings: Record<string, any>;
 }
 
-const SECTION_ICONS: Record<string, string> = {
-  hero: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
-  text: 'M4 6h16M4 12h16M4 18h7',
-  image: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
-  registration: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z',
-  how_it_works: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
-  leaderboard: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-};
-
-const SECTION_LABELS: Record<string, string> = {
-  hero: 'Hero / Banniere',
+const LABELS: Record<string, string> = {
+  hero: 'Hero / Bannière',
   text: 'Bloc de texte',
   image: 'Image',
   registration: 'Inscription',
-  how_it_works: 'Comment ca marche',
+  how_it_works: 'Comment ça marche',
   leaderboard: 'Classement',
 };
 
-const BUILT_IN_TYPES = ['hero', 'registration', 'how_it_works', 'leaderboard'];
+const BUILT_IN = ['hero', 'registration', 'how_it_works', 'leaderboard'];
 
-export default function AdminPageBuilderPage() {
+export default function PageEditorPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [sections, setSections] = useState<PageSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<PageSection | null>(null);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+  const [toast, setToast] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [showAddMenu, setShowAddMenu] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadTargetId, setUploadTargetId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploadId, setUploadId] = useState<number | null>(null);
 
-  const getHeaders = useCallback((): Record<string, string> => {
-    if (!user) return { 'Content-Type': 'application/json' };
-    return { 'X-Admin-User-Id': String(user.id), 'Content-Type': 'application/json' };
-  }, [user]);
+  const hdrs = useCallback((): Record<string, string> => ({
+    'X-Admin-User-Id': String(user?.id || ''),
+    'Content-Type': 'application/json',
+  }), [user]);
 
+  const flash = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
+
+  // ── Data fetching ──
   const fetchSections = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch('/api/admin/page-sections', {
-        headers: { 'X-Admin-User-Id': String(user.id) },
-      });
+      const res = await fetch('/api/admin/page-sections', { headers: { 'X-Admin-User-Id': String(user.id) } });
       const data = await res.json();
       if (data.success) {
         const rows = (data.data.sections || []).map((s: any) => ({
-          ...s,
-          settings: typeof s.settings === 'string' ? JSON.parse(s.settings) : (s.settings || {}),
+          ...s, settings: typeof s.settings === 'string' ? JSON.parse(s.settings) : (s.settings || {}),
         }));
         setSections(rows.sort((a: PageSection, b: PageSection) => a.sort_order - b.sort_order));
-      } else {
-        setError(data.error || 'Erreur de chargement');
       }
-    } catch (err: any) {
-      setError(err.message || 'Erreur de chargement');
-    } finally {
-      setLoading(false);
-    }
+    } catch {}
+    setLoading(false);
   }, [user]);
 
-  useEffect(() => {
-    fetchSections();
-  }, [fetchSections]);
+  useEffect(() => { fetchSections(); }, [fetchSections]);
 
-  async function toggleVisibility(section: PageSection) {
+  async function migrate() {
     if (!user) return;
     try {
+      const res = await fetch('/api/admin/page-sections/migrate', { headers: { 'X-Admin-User-Id': String(user.id) } });
+      const data = await res.json();
+      if (data.success) { flash('Sections initialisées !'); fetchSections(); }
+      else setError(data.error || 'Erreur');
+    } catch { setError('Erreur de migration'); }
+  }
+
+  // ── CRUD ──
+  async function saveSection(s: PageSection) {
+    if (!user) return;
+    setSaving(true);
+    try {
       const res = await fetch('/api/admin/page-sections/update', {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({ id: section.id, is_visible: !section.is_visible }),
+        method: 'PUT', headers: hdrs(),
+        body: JSON.stringify({ id: s.id, title: s.title, content: s.content, image_url: s.image_url, settings: s.settings, is_visible: s.is_visible }),
       });
       const data = await res.json();
       if (data.success) {
-        setSections(prev => prev.map(s => s.id === section.id ? { ...s, is_visible: !s.is_visible } : s));
-      } else {
-        setError(data.error || 'Erreur');
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
+        setSections(prev => prev.map(x => x.id === s.id ? s : x));
+        setEditing(null);
+        flash('Enregistré !');
+      } else setError(data.error || 'Erreur');
+    } catch (e: any) { setError(e.message); }
+    setSaving(false);
   }
 
-  async function updateSection(section: PageSection) {
+  async function toggleVis(section: PageSection) {
     if (!user) return;
+    const next = !section.is_visible;
+    setSections(prev => prev.map(s => s.id === section.id ? { ...s, is_visible: next } : s));
     try {
-      const res = await fetch('/api/admin/page-sections/update', {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({
-          id: section.id,
-          title: section.title,
-          content: section.content,
-          image_url: section.image_url,
-          settings: section.settings,
-          is_visible: section.is_visible,
-        }),
+      await fetch('/api/admin/page-sections/update', {
+        method: 'PUT', headers: hdrs(),
+        body: JSON.stringify({ id: section.id, is_visible: next }),
       });
-      const data = await res.json();
-      if (data.success) {
-        setSections(prev => prev.map(s => s.id === section.id ? section : s));
-        setEditingId(null);
-        setSuccess('Section mise a jour!');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(data.error || 'Erreur');
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
+    } catch { fetchSections(); }
   }
 
-  async function deleteSection(id: number) {
-    if (!user) return;
-    if (!confirm('Supprimer cette section?')) return;
+  async function deleteSec(id: number) {
+    if (!user || !confirm('Supprimer cette section ?')) return;
     try {
       const res = await fetch('/api/admin/page-sections/delete', {
-        method: 'DELETE',
-        headers: getHeaders(),
-        body: JSON.stringify({ id }),
+        method: 'DELETE', headers: hdrs(), body: JSON.stringify({ id }),
       });
       const data = await res.json();
-      if (data.success) {
-        setSections(prev => prev.filter(s => s.id !== id));
-        setSuccess('Section supprimee!');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(data.error || 'Erreur');
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
+      if (data.success) { setSections(prev => prev.filter(s => s.id !== id)); flash('Supprimé'); }
+      else setError(data.error || 'Erreur');
+    } catch (e: any) { setError(e.message); }
   }
 
   async function addSection(type: 'text' | 'image') {
     if (!user) return;
-    setShowAddMenu(false);
+    setAddOpen(false);
     try {
       const res = await fetch('/api/admin/page-sections/create', {
-        method: 'POST',
-        headers: getHeaders(),
+        method: 'POST', headers: hdrs(),
         body: JSON.stringify({
           section_type: type,
-          title: type === 'text' ? 'Nouveau bloc de texte' : 'Nouvelle image',
-          content: '',
-          settings: type === 'text' ? { bgColor: '#ffffff' } : { imageWidth: 400 },
+          title: type === 'text' ? 'Nouveau texte' : 'Nouvelle image',
+          content: '', settings: type === 'text' ? { bgColor: 'transparent' } : { imageWidth: 500 },
           sort_order: sections.length,
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        const newSection = data.data.section;
-        newSection.settings = typeof newSection.settings === 'string' ? JSON.parse(newSection.settings) : (newSection.settings || {});
-        setSections(prev => [...prev, newSection]);
-        setSuccess('Section ajoutee!');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(data.error || 'Erreur');
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
+      if (data.success) { fetchSections(); flash('Section ajoutée !'); }
+      else setError(data.error || 'Erreur');
+    } catch (e: any) { setError(e.message); }
   }
 
-  async function reorderSections(newOrder: PageSection[]) {
-    if (!user) return;
-    setSections(newOrder.map((s, i) => ({ ...s, sort_order: i })));
+  // ── Reorder ──
+  const heroSec = sections.find(s => s.section_type === 'hero');
+  const others = sections.filter(s => s.section_type !== 'hero');
+
+  async function reorder(newOthers: PageSection[]) {
+    const all = heroSec ? [heroSec, ...newOthers] : newOthers;
+    setSections(all.map((s, i) => ({ ...s, sort_order: i })));
     try {
-      const res = await fetch('/api/admin/page-sections/reorder', {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({ order: newOrder.map(s => s.id) }),
+      await fetch('/api/admin/page-sections/reorder', {
+        method: 'PUT', headers: hdrs(),
+        body: JSON.stringify({ order: all.map(s => s.id) }),
       });
-      const data = await res.json();
-      if (!data.success) {
-        setError(data.error || 'Erreur de reordonnancement');
-        fetchSections();
-      }
-    } catch (err: any) {
-      setError(err.message);
-      fetchSections();
-    }
+    } catch { fetchSections(); }
   }
 
-  function triggerUpload(sectionId: number) {
-    setUploadTargetId(sectionId);
-    fileInputRef.current?.click();
+  function move(idx: number, dir: 'up' | 'down') {
+    const ni = dir === 'up' ? idx - 1 : idx + 1;
+    if (ni < 0 || ni >= others.length) return;
+    const arr = [...others];
+    [arr[idx], arr[ni]] = [arr[ni], arr[idx]];
+    reorder(arr);
   }
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleDrop(dropIdx: number) {
+    if (dragIdx === null || dragIdx === dropIdx) { setDragIdx(null); setOverIdx(null); return; }
+    const arr = [...others];
+    const [moved] = arr.splice(dragIdx, 1);
+    arr.splice(dropIdx, 0, moved);
+    setDragIdx(null); setOverIdx(null);
+    reorder(arr);
+  }
+
+  // ── Upload ──
+  function triggerUpload(id: number) { setUploadId(id); fileRef.current?.click(); }
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !user || !uploadTargetId) return;
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('section_id', String(uploadTargetId));
+    if (!file || !user || !uploadId) return;
+    const fd = new FormData();
+    fd.append('image', file);
+    fd.append('section_id', String(uploadId));
     try {
       const res = await fetch('/api/admin/page-sections/upload', {
-        method: 'POST',
-        headers: { 'X-Admin-User-Id': String(user.id) },
-        body: formData,
+        method: 'POST', headers: { 'X-Admin-User-Id': String(user.id) }, body: fd,
       });
       const data = await res.json();
       if (data.success) {
         const url = data.data?.url || data.data?.section?.image_url || '';
-        setSections(prev =>
-          prev.map(s => s.id === uploadTargetId ? { ...s, image_url: url } : s)
+        setSections(prev => prev.map(s => s.id === uploadId ? { ...s, image_url: url } : s));
+        if (editing?.id === uploadId) setEditing(prev => prev ? { ...prev, image_url: url } : null);
+        flash('Image uploadée !');
+      } else setError(data.error || 'Erreur');
+    } catch (e: any) { setError(e.message); }
+    setUploadId(null);
+    if (fileRef.current) fileRef.current.value = '';
+  }
+
+  // ── Live preview: merge editing changes into display ──
+  const display = sections.map(s => editing && s.id === editing.id ? editing : s);
+  const displayHero = display.find(s => s.section_type === 'hero');
+  const displayOthers = display.filter(s => s.section_type !== 'hero');
+
+  // ── Render section content ──
+  function renderContent(section: PageSection) {
+    if (!section.is_visible) {
+      return (
+        <div className="py-20 flex items-center justify-center">
+          <span className="text-white/20 text-sm italic">Section masquée</span>
+        </div>
+      );
+    }
+    switch (section.section_type) {
+      case 'hero':
+        return <Hero heroImageSize={section.settings?.heroImageSize} />;
+      case 'registration':
+        return (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <div className="text-center mb-12">
+              <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-2">Rejoignez la comp&eacute;tition</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">Inscrivez-vous et jouez</h2>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+              <RegistrationForm />
+              <div className="lg:sticky lg:top-24"><HowItWorks /></div>
+            </div>
+          </div>
         );
-        setSuccess('Image uploadee!');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(data.error || 'Erreur upload');
+      case 'how_it_works':
+        return (
+          <div className="py-10 flex items-center justify-center">
+            <span className="text-white/30 text-xs italic">Affich&eacute; avec la section Inscription</span>
+          </div>
+        );
+      case 'leaderboard':
+        return (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <Leaderboard />
+          </div>
+        );
+      case 'text': {
+        const bg = section.settings?.bgColor || 'transparent';
+        const color = section.settings?.textColor || '#ffffff';
+        return (
+          <div style={{ backgroundColor: bg }} className="py-12 sm:py-16">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              {section.title && <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center" style={{ color }}>{section.title}</h2>}
+              {section.content ? (
+                <div className="prose prose-lg max-w-none text-center leading-relaxed" style={{ color: color + 'cc' }}
+                  dangerouslySetInnerHTML={{ __html: section.content.replace(/\n/g, '<br/>') }} />
+              ) : (
+                <p className="text-center text-white/25 italic text-sm">Cliquez sur &laquo; Modifier &raquo; pour ajouter du contenu</p>
+              )}
+            </div>
+          </div>
+        );
       }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setUploadTargetId(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      case 'image': {
+        const w = section.settings?.imageWidth || 500;
+        return (
+          <div style={{ backgroundColor: section.settings?.bgColor || 'transparent' }} className="py-12 sm:py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {section.title && <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-center text-white">{section.title}</h2>}
+              <div className="flex justify-center">
+                {section.image_url ? (
+                  <img src={section.image_url} alt={section.title || ''} style={{ maxWidth: `${w}px`, width: '100%' }} className="rounded-2xl shadow-2xl h-auto" />
+                ) : (
+                  <div className="border-2 border-dashed border-white/15 rounded-2xl flex items-center justify-center" style={{ width: `${w}px`, height: 200 }}>
+                    <span className="text-white/25 text-sm">Aucune image</span>
+                  </div>
+                )}
+              </div>
+              {section.content && <p className="text-white/60 text-center mt-6 max-w-2xl mx-auto text-sm">{section.content}</p>}
+            </div>
+          </div>
+        );
+      }
+      default: return null;
     }
   }
 
-  function handleDragStart(e: React.DragEvent, index: number) {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', String(index));
-  }
-
-  function handleDragOver(e: React.DragEvent, index: number) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverIndex(index);
-  }
-
-  function handleDragLeave() {
-    setDragOverIndex(null);
-  }
-
-  function handleDrop(e: React.DragEvent, dropIndex: number) {
-    e.preventDefault();
-    setDragOverIndex(null);
-    if (draggedIndex === null || draggedIndex === dropIndex) {
-      setDraggedIndex(null);
-      return;
-    }
-    const newSections = [...sections];
-    const [moved] = newSections.splice(draggedIndex, 1);
-    newSections.splice(dropIndex, 0, moved);
-    setDraggedIndex(null);
-    reorderSections(newSections);
-  }
-
-  function handleDragEnd() {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  }
-
-  function SectionEditor({ section }: { section: PageSection }) {
-    const [localSection, setLocalSection] = useState<PageSection>({ ...section, settings: { ...section.settings } });
-
-    function updateLocal(updates: Partial<PageSection>) {
-      setLocalSection(prev => ({ ...prev, ...updates }));
-    }
-
-    function updateSettings(updates: Partial<SectionSettings>) {
-      setLocalSection(prev => ({
-        ...prev,
-        settings: { ...prev.settings, ...updates },
-      }));
-    }
+  // ── Section overlay ──
+  function Overlay({ section, index, canDrag }: { section: PageSection; index: number; canDrag: boolean }) {
+    const isEditable = !BUILT_IN.includes(section.section_type) || section.section_type === 'hero';
+    const canDelete = !BUILT_IN.includes(section.section_type);
 
     return (
-      <div className="mt-4 border-t border-gray-100 pt-4 space-y-4">
-        {section.section_type === 'hero' && (
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-2">
-              Taille de l&apos;image: {localSection.settings.heroImageSize || 440}px
-            </label>
-            <input
-              type="range"
-              min={300}
-              max={700}
-              value={localSection.settings.heroImageSize || 440}
-              onChange={(e) => updateSettings({ heroImageSize: Number(e.target.value) })}
-              className="w-full accent-primary"
+      <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none">
+        <div className="absolute inset-x-2 sm:inset-x-4 inset-y-0 ring-2 ring-inset ring-blue-500/50 rounded-xl" />
+
+        {/* Label / drag handle */}
+        <div className="absolute top-3 left-4 sm:left-8 pointer-events-auto"
+          draggable={canDrag}
+          onDragStart={canDrag ? (e) => { e.dataTransfer.effectAllowed = 'move'; setDragIdx(index); } : undefined}
+          onDragEnd={canDrag ? () => { setDragIdx(null); setOverIdx(null); } : undefined}
+        >
+          <span className={`bg-blue-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg shadow-xl inline-flex items-center gap-1.5 select-none ${canDrag ? 'cursor-grab active:cursor-grabbing' : ''}`}>
+            {canDrag && (
+              <svg className="w-3 h-3 opacity-50" viewBox="0 0 20 20" fill="currentColor">
+                <circle cx="7" cy="4" r="1.5"/><circle cx="13" cy="4" r="1.5"/>
+                <circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/>
+                <circle cx="7" cy="16" r="1.5"/><circle cx="13" cy="16" r="1.5"/>
+              </svg>
+            )}
+            {LABELS[section.section_type] || section.section_type}
+          </span>
+        </div>
+
+        {/* Buttons */}
+        <div className="absolute top-3 right-4 sm:right-8 pointer-events-auto flex items-center gap-0.5 bg-white rounded-xl shadow-2xl p-1">
+          {canDrag && (
+            <>
+              <Btn title="Monter" disabled={index === 0} onClick={() => move(index, 'up')}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </Btn>
+              <Btn title="Descendre" disabled={index === others.length - 1} onClick={() => move(index, 'down')}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </Btn>
+              <Sep />
+            </>
+          )}
+          <Btn title={section.is_visible ? 'Masquer' : 'Afficher'} active={section.is_visible} onClick={() => toggleVis(section)}>
+            {section.is_visible ? (
+              <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></>
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18"/>
+            )}
+          </Btn>
+          {isEditable && (
+            <Btn title="Modifier" onClick={() => setEditing({ ...section, settings: { ...section.settings } })}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </Btn>
+          )}
+          {canDelete && (
+            <>
+              <Sep />
+              <Btn title="Supprimer" danger onClick={() => deleteSec(section.id)}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </Btn>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Loading state ──
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-50 bg-[#000d2b] flex items-center justify-center">
+        <div className="spinner" style={{ width: 40, height: 40 }} />
+      </div>
+    );
+  }
+
+  // ── Empty / migration state ──
+  if (sections.length === 0) {
+    return (
+      <div className="fixed inset-0 z-50 bg-[#000d2b] flex items-center justify-center">
+        <div className="text-center text-white max-w-sm">
+          <div className="text-5xl mb-4">🏗️</div>
+          <h2 className="text-xl font-bold mb-3">Initialiser les sections</h2>
+          <p className="text-white/50 text-sm mb-6">Cr&eacute;ez les sections par d&eacute;faut pour commencer &agrave; construire votre page d&apos;accueil.</p>
+          <button onClick={migrate} className="btn-cta px-8 py-3 rounded-full font-bold text-primary-dark">Initialiser</button>
+          <div className="mt-6">
+            <button onClick={() => router.push('/admin/dashboard')} className="text-white/30 text-sm hover:text-white/60 transition-colors">&larr; Retour</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main editor ──
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#000d2b]">
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+
+      {/* ═══ TOOLBAR ═══ */}
+      <div className="h-12 bg-[#0a1628]/95 backdrop-blur-xl border-b border-white/10 flex items-center px-3 sm:px-5 gap-3 shrink-0 z-30">
+        <button onClick={() => router.push('/admin/dashboard')} className="text-white/50 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors" title="Retour">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        </button>
+        <div className="w-px h-5 bg-white/10 hidden sm:block" />
+        <span className="text-white font-semibold text-sm hidden sm:block">&Eacute;diteur de page</span>
+        <div className="flex-1" />
+
+        <div className="relative">
+          <button onClick={() => setAddOpen(!addOpen)} className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-lg transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6"/></svg>
+            <span className="hidden sm:inline">Ajouter</span>
+          </button>
+          {addOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setAddOpen(false)} />
+              <div className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-2xl p-1.5 min-w-[180px] z-50">
+                <button onClick={() => addSection('text')} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <span>📝</span> Bloc de texte
+                </button>
+                <button onClick={() => addSection('image')} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <span>🖼️</span> Image
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
+        <a href="/" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white text-xs sm:text-sm transition-colors flex items-center gap-1">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          <span className="hidden sm:inline">Aper&ccedil;u</span>
+        </a>
+      </div>
+
+      {/* ═══ PREVIEW ═══ */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Header (dimmed, non-interactive) */}
+        <div className="pointer-events-none select-none opacity-50"><Header /></div>
+
+        {/* Hero section (always first, not draggable) */}
+        {displayHero && (
+          <div className="relative group">
+            <div className="pointer-events-none select-none">{renderContent(displayHero)}</div>
+            <Overlay section={displayHero} index={-1} canDrag={false} />
+          </div>
+        )}
+
+        {/* Other sections inside dark gradient */}
+        <div className="relative" style={{ background: 'linear-gradient(180deg, #001f52 0%, #001440 50%, #000d2b 100%)' }}>
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-[10%] right-[5%] w-[300px] h-[300px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,184,0,0.04) 0%, transparent 60%)' }} />
+            <div className="absolute bottom-[20%] left-[5%] w-[400px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(0,56,147,0.15) 0%, transparent 60%)' }} />
+          </div>
+
+          <div className="relative z-10">
+            {displayOthers.map((section, idx) => (
+              <div key={section.id}>
+                {/* Drop indicator */}
+                {overIdx === idx && dragIdx !== null && dragIdx !== idx && (
+                  <div className="h-1 bg-blue-500 mx-6 sm:mx-10 rounded-full shadow-[0_0_16px_rgba(59,130,246,0.6)]" />
+                )}
+
+                <div
+                  className={`relative group transition-all duration-200 ${dragIdx === idx ? 'opacity-30 scale-[0.98]' : ''} ${!section.is_visible ? 'opacity-40' : ''}`}
+                  onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setOverIdx(idx); }}
+                  onDragLeave={() => setOverIdx(null)}
+                  onDrop={(e) => { e.preventDefault(); handleDrop(idx); }}
+                >
+                  <div className="pointer-events-none select-none">{renderContent(section)}</div>
+                  <Overlay section={section} index={idx} canDrag={true} />
+                </div>
+              </div>
+            ))}
+
+            {/* Drop zone at end */}
+            <div
+              className="py-8 flex justify-center"
+              onDragOver={(e) => { e.preventDefault(); setOverIdx(others.length); }}
+              onDragLeave={() => setOverIdx(null)}
+              onDrop={(e) => { e.preventDefault(); handleDrop(others.length); }}
+            >
+              {overIdx === others.length && dragIdx !== null ? (
+                <div className="h-1 bg-blue-500 w-full mx-10 rounded-full shadow-[0_0_16px_rgba(59,130,246,0.6)]" />
+              ) : (
+                <button onClick={() => setAddOpen(true)}
+                  className="border-2 border-dashed border-white/10 rounded-xl px-8 py-4 text-white/20 hover:text-white/50 hover:border-white/25 transition-colors text-sm font-medium flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6"/></svg>
+                  Ajouter une section
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer (dimmed, non-interactive) */}
+        <div className="pointer-events-none select-none opacity-50"><Footer /></div>
+      </div>
+
+      {/* ═══ EDIT PANEL ═══ */}
+      {editing && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={() => setEditing(null)} />
+          <div className="fixed top-0 right-0 bottom-0 w-[420px] max-w-[92vw] bg-white z-50 shadow-2xl overflow-y-auto"
+            style={{ animation: 'panelSlideIn 0.25s ease' }}>
+            <EditPanel
+              section={editing}
+              onChange={setEditing}
+              onSave={saveSection}
+              onClose={() => setEditing(null)}
+              onUpload={triggerUpload}
+              saving={saving}
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>300px</span>
-              <span>700px</span>
+          </div>
+        </>
+      )}
+
+      {/* ═══ TOAST ═══ */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 z-[60] bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-xl"
+          style={{ animation: 'toastUp 0.3s ease' }}>
+          {toast}
+        </div>
+      )}
+
+      {/* ═══ ERROR ═══ */}
+      {error && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[60] bg-red-600 text-white px-5 py-2.5 rounded-xl text-sm shadow-xl max-w-md flex items-center gap-3">
+          {error}
+          <button onClick={() => setError('')} className="font-bold text-lg leading-none">&times;</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Small UI helpers ──
+function Btn({ children, onClick, title, disabled, active, danger }: {
+  children: React.ReactNode; onClick: () => void; title: string;
+  disabled?: boolean; active?: boolean; danger?: boolean;
+}) {
+  return (
+    <button onClick={onClick} disabled={disabled} title={title}
+      className={`p-2 rounded-lg transition-colors disabled:opacity-25 ${
+        danger ? 'text-gray-400 hover:bg-red-50 hover:text-red-500' :
+        active ? 'text-blue-600 hover:bg-blue-50' :
+        'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
+      }`}>
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">{children}</svg>
+    </button>
+  );
+}
+
+function Sep() {
+  return <div className="w-px h-5 bg-gray-200 mx-0.5" />;
+}
+
+// ── Edit Panel ──
+function EditPanel({ section, onChange, onSave, onClose, onUpload, saving }: {
+  section: PageSection; onChange: (s: PageSection) => void;
+  onSave: (s: PageSection) => void; onClose: () => void;
+  onUpload: (id: number) => void; saving: boolean;
+}) {
+  const set = (k: Partial<PageSection>) => onChange({ ...section, ...k });
+  const setOpt = (k: string, v: any) => onChange({ ...section, settings: { ...section.settings, [k]: v } });
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
+        <h3 className="font-bold text-gray-900">{LABELS[section.section_type] || section.section_type}</h3>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      {/* Fields */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        {section.section_type === 'hero' && (
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700">
+              Taille de l&apos;image hero
+            </label>
+            <div className="bg-blue-50 rounded-xl p-4">
+              <div className="text-center text-2xl font-bold text-blue-700 mb-3">{section.settings.heroImageSize || 440}px</div>
+              <input type="range" min={300} max={700} value={section.settings.heroImageSize || 440}
+                onChange={(e) => setOpt('heroImageSize', Number(e.target.value))}
+                className="w-full accent-blue-600" />
+              <div className="flex justify-between text-[11px] text-gray-400 mt-2"><span>300px</span><span>700px</span></div>
             </div>
           </div>
         )}
 
         {section.section_type === 'text' && (
           <>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Titre</label>
-              <input
-                type="text"
-                value={localSection.title}
-                onChange={(e) => updateLocal({ title: e.target.value })}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Contenu</label>
-              <textarea
-                value={localSection.content || ''}
-                onChange={(e) => updateLocal({ content: e.target.value })}
-                rows={4}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-y"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Couleur de fond</label>
+            <Field label="Titre">
+              <input type="text" value={section.title || ''} onChange={(e) => set({ title: e.target.value })}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+            </Field>
+            <Field label="Contenu">
+              <textarea value={section.content || ''} onChange={(e) => set({ content: e.target.value })} rows={6}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-y" />
+            </Field>
+            <Field label="Couleur de fond">
               <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={localSection.settings.bgColor || '#ffffff'}
-                  onChange={(e) => updateSettings({ bgColor: e.target.value })}
-                  className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer"
-                />
-                <span className="text-sm text-gray-500">{localSection.settings.bgColor || '#ffffff'}</span>
+                <input type="color" value={section.settings.bgColor === 'transparent' ? '#001f52' : (section.settings.bgColor || '#001f52')}
+                  onChange={(e) => setOpt('bgColor', e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer" />
+                <span className="text-sm text-gray-500 flex-1">{section.settings.bgColor || 'transparent'}</span>
+                <button onClick={() => setOpt('bgColor', 'transparent')} className="text-xs text-blue-600 hover:underline">Transparent</button>
               </div>
-            </div>
+            </Field>
           </>
         )}
 
         {section.section_type === 'image' && (
           <>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Titre</label>
-              <input
-                type="text"
-                value={localSection.title}
-                onChange={(e) => updateLocal({ title: e.target.value })}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Image</label>
-              <button
-                onClick={() => triggerUpload(section.id)}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-              >
+            <Field label="Titre (optionnel)">
+              <input type="text" value={section.title || ''} onChange={(e) => set({ title: e.target.value })}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                placeholder="Titre au-dessus de l'image" />
+            </Field>
+            <Field label="L&eacute;gende (optionnel)">
+              <input type="text" value={section.content || ''} onChange={(e) => set({ content: e.target.value })}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                placeholder="Texte sous l'image" />
+            </Field>
+            <Field label="Image">
+              <button onClick={() => onUpload(section.id)}
+                className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl px-4 py-3 text-sm font-medium transition-colors border border-blue-200 flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                 Uploader une image
               </button>
-              {localSection.image_url && (
-                <p className="mt-2 text-xs text-gray-400 break-all">{localSection.image_url}</p>
+              {section.image_url && (
+                <img src={section.image_url} alt="" className="mt-3 rounded-xl shadow-sm w-full h-32 object-cover" />
               )}
-            </div>
+            </Field>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-2">
-                Largeur: {localSection.settings.imageWidth || 400}px
-              </label>
-              <input
-                type="range"
-                min={200}
-                max={800}
-                value={localSection.settings.imageWidth || 400}
-                onChange={(e) => updateSettings({ imageWidth: Number(e.target.value) })}
-                className="w-full accent-primary"
-              />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>200px</span>
-                <span>800px</span>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Largeur de l&apos;image</label>
+              <div className="bg-gray-50 rounded-xl p-4">
+                <div className="text-center text-xl font-bold text-gray-700 mb-3">{section.settings.imageWidth || 500}px</div>
+                <input type="range" min={200} max={1000} value={section.settings.imageWidth || 500}
+                  onChange={(e) => setOpt('imageWidth', Number(e.target.value))}
+                  className="w-full accent-blue-600" />
+                <div className="flex justify-between text-[11px] text-gray-400 mt-2"><span>200px</span><span>1000px</span></div>
               </div>
             </div>
           </>
         )}
-
-        <div className="flex items-center gap-2 pt-2">
-          <button
-            onClick={() => updateSection(localSection)}
-            className="bg-primary text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary-dark transition-colors"
-          >
-            Enregistrer
-          </button>
-          <button
-            onClick={() => setEditingId(null)}
-            className="bg-gray-100 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-200 transition-colors"
-          >
-            Annuler
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <div className="spinner spinner-dark" style={{ width: 32, height: 32 }} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-3xl space-y-6">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFileChange}
-      />
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-dark">Constructeur de page</h1>
-        <a
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:text-primary-dark text-sm font-medium flex items-center gap-1.5 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-          Voir le site
-        </a>
       </div>
 
-      {/* Messages */}
-      {error && (
-        <div className="text-red bg-red-50 p-3 rounded-xl text-sm">
-          {error}
-          <button onClick={() => setError('')} className="ml-2 font-bold">x</button>
-        </div>
-      )}
-      {success && (
-        <div className="text-green-600 bg-green-50 p-3 rounded-xl text-sm">{success}</div>
-      )}
-
-      {/* Sections list */}
-      <div className="space-y-3">
-        {sections.map((section, index) => (
-          <div
-            key={section.id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, index)}
-            onDragEnd={handleDragEnd}
-            className={`bg-white rounded-xl shadow-sm p-4 transition-all ${
-              draggedIndex === index ? 'opacity-50 scale-95' : ''
-            } ${
-              dragOverIndex === index && draggedIndex !== index
-                ? 'ring-2 ring-primary ring-offset-2'
-                : ''
-            } ${!section.is_visible ? 'opacity-60' : ''}`}
-          >
-            <div className="flex items-center gap-3">
-              {/* Drag handle */}
-              <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 flex-shrink-0">
-                <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                  <circle cx="7" cy="4" r="1.5" />
-                  <circle cx="13" cy="4" r="1.5" />
-                  <circle cx="7" cy="10" r="1.5" />
-                  <circle cx="13" cy="10" r="1.5" />
-                  <circle cx="7" cy="16" r="1.5" />
-                  <circle cx="13" cy="16" r="1.5" />
-                </svg>
-              </div>
-
-              {/* Section icon */}
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={SECTION_ICONS[section.section_type] || SECTION_ICONS.text} />
-                </svg>
-              </div>
-
-              {/* Title */}
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-dark truncate">
-                  {section.title || SECTION_LABELS[section.section_type] || section.section_type}
-                </h3>
-                <p className="text-xs text-gray-400">{SECTION_LABELS[section.section_type] || section.section_type}</p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <button
-                  onClick={() => toggleVisibility(section)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    section.is_visible
-                      ? 'text-primary hover:bg-primary/10'
-                      : 'text-gray-300 hover:bg-gray-100'
-                  }`}
-                  title={section.is_visible ? 'Masquer' : 'Afficher'}
-                >
-                  {section.is_visible ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
-                  )}
-                </button>
-
-                {(!BUILT_IN_TYPES.includes(section.section_type) || section.section_type === 'hero') && (
-                  <button
-                    onClick={() => setEditingId(editingId === section.id ? null : section.id)}
-                    className={`p-2 rounded-lg transition-colors ${
-                      editingId === section.id
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'
-                    }`}
-                    title="Modifier"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                )}
-
-                {!BUILT_IN_TYPES.includes(section.section_type) && (
-                  <button
-                    onClick={() => deleteSection(section.id)}
-                    className="p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red transition-colors"
-                    title="Supprimer"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Section preview */}
-            <div className="mt-3 ml-11">
-              {section.section_type === 'hero' && (
-                <div className="text-xs text-gray-400">
-                  Banniere principale - Taille image: {section.settings?.heroImageSize || 440}px
-                </div>
-              )}
-              {section.section_type === 'text' && section.content && (
-                <p className="text-xs text-gray-500 line-clamp-2">{section.content}</p>
-              )}
-              {section.section_type === 'image' && section.image_url && (
-                <div className="text-xs text-gray-400 flex items-center gap-2">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="truncate">{section.image_url}</span>
-                  <span>- {section.settings?.imageWidth || 400}px</span>
-                </div>
-              )}
-              {section.section_type === 'registration' && (
-                <div className="text-xs text-gray-400">Formulaire d&apos;inscription</div>
-              )}
-              {section.section_type === 'how_it_works' && (
-                <div className="text-xs text-gray-400">Explication du fonctionnement</div>
-              )}
-              {section.section_type === 'leaderboard' && (
-                <div className="text-xs text-gray-400">Tableau des meilleurs scores</div>
-              )}
-            </div>
-
-            {/* Inline editor */}
-            {editingId === section.id && <SectionEditor section={section} />}
-          </div>
-        ))}
-      </div>
-
-      {/* Add section button */}
-      <div className="relative">
-        <button
-          onClick={() => setShowAddMenu(!showAddMenu)}
-          className="w-full border-2 border-dashed border-gray-200 rounded-xl p-4 text-sm font-medium text-gray-400 hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Ajouter une section
+      {/* Footer */}
+      <div className="p-5 border-t border-gray-100 shrink-0 flex gap-3">
+        <button onClick={() => onSave(section)} disabled={saving}
+          className="flex-1 bg-blue-600 text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
+          {saving ? 'Enregistrement...' : 'Enregistrer'}
         </button>
-
-        {showAddMenu && (
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white rounded-xl shadow-lg border border-gray-100 p-2 min-w-[200px] z-10">
-            <button
-              onClick={() => addSection('text')}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-dark hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-                </svg>
-              </div>
-              Bloc de texte
-            </button>
-            <button
-              onClick={() => addSection('image')}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-dark hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              Image
-            </button>
-          </div>
-        )}
+        <button onClick={onClose} className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+          Annuler
+        </button>
       </div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      {children}
     </div>
   );
 }
