@@ -11,6 +11,7 @@ const navItems = [
   { href: '/admin/questions', label: 'Questions', icon: '\u2753' },
   { href: '/admin/categories', label: 'Categories', icon: '\u{1F4C1}' },
   { href: '/admin/sessions', label: 'Sessions', icon: '\u{1F3AE}' },
+  { href: '/admin/editor', label: '\u00C9diteur visuel', icon: '\u270F\uFE0F' },
   { href: '/admin/page-builder', label: 'Constructeur de page', icon: '\u{1F3D7}\uFE0F' },
   { href: '/admin/settings', label: 'Parametres', icon: '\u2699\uFE0F' },
   { href: '/admin/site-content', label: 'Contenu du site', icon: '\u{1F4DD}' },
@@ -39,6 +40,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="spinner spinner-dark" style={{ width: 36, height: 36 }} />
       </div>
     );
+  }
+
+  if (pathname.startsWith('/admin/editor')) {
+    return <>{children}</>;
   }
 
   return (
