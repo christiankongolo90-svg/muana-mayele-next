@@ -102,7 +102,7 @@ export default function Hero() {
 
             <h1 className="text-[2.5rem] sm:text-5xl lg:text-[3.4rem] font-extrabold leading-[1.08] mb-4 tracking-tight">
               Testez vos connaissances.{' '}
-              <span className="text-gold">Affrontez la communauté.</span>
+              <span className="text-gold whitespace-nowrap">Affrontez la communauté.</span>
             </h1>
 
             <p className="text-white/60 text-base sm:text-lg leading-relaxed mb-8">
