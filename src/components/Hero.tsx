@@ -113,31 +113,31 @@ export default function Hero() {
             {!checking && settings && !settings.is_open && (
               <div className="mb-8 animate-[fadeIn_0.5s_ease_0.3s_backwards]">
                 {settings.schedule?.next_session && (
-                  <div className="flex items-center gap-3 glass-card rounded-xl px-4 py-3 mb-4 max-w-fit">
-                    <div className="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
-                      <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <div className="flex items-center gap-4 glass-card rounded-2xl px-6 py-4 mb-5 max-w-fit">
+                    <div className="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center shrink-0">
+                      <svg className="w-6 h-6 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                     <div>
-                      <span className="text-gold/70 text-[11px] font-semibold uppercase tracking-wider block">Prochaine session</span>
-                      <span className="text-white text-sm font-medium">{getNextSessionText()}</span>
+                      <span className="text-gold/70 text-xs font-semibold uppercase tracking-wider block">Prochaine session</span>
+                      <span className="text-white text-lg font-semibold">{getNextSessionText()}</span>
                     </div>
                   </div>
                 )}
                 {hasCountdown && (
-                  <div className="flex gap-2.5 sm:gap-3 mb-2">
+                  <div className="flex gap-3 sm:gap-4 mb-3">
                     {[
                       { val: countdown.days, label: 'Jours' },
                       { val: countdown.hours, label: 'Heures' },
                       { val: countdown.minutes, label: 'Min' },
                       { val: countdown.seconds, label: 'Sec' },
                     ].map((item, i) => (
-                      <div key={item.label} className="flex items-center gap-2">
-                        {i > 0 && <span className="text-white/20 font-light text-lg">:</span>}
-                        <div className="glass-card rounded-xl px-3.5 py-2.5 text-center min-w-[56px]">
-                          <span className="block text-2xl sm:text-[28px] font-bold text-white tabular-nums leading-none">{item.val.toString().padStart(2, '0')}</span>
-                          <span className="block text-[10px] text-white/40 uppercase tracking-wider mt-1">{item.label}</span>
+                      <div key={item.label} className="flex items-center gap-2.5">
+                        {i > 0 && <span className="text-white/20 font-light text-2xl">:</span>}
+                        <div className="glass-card rounded-2xl px-5 py-4 text-center min-w-[72px] sm:min-w-[80px]">
+                          <span className="block text-3xl sm:text-4xl font-bold text-white tabular-nums leading-none">{item.val.toString().padStart(2, '0')}</span>
+                          <span className="block text-[11px] text-white/40 uppercase tracking-wider mt-1.5">{item.label}</span>
                         </div>
                       </div>
                     ))}
@@ -160,17 +160,17 @@ export default function Hero() {
             )}
 
             {/* CTAs */}
-            <div className="flex flex-wrap gap-3 items-center">
-              <button onClick={playQuiz} className="btn-cta inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full font-bold text-[15px] text-primary-dark">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="flex flex-wrap gap-4 items-center">
+              <button onClick={playQuiz} className="btn-cta inline-flex items-center gap-3 px-10 py-4.5 rounded-full font-bold text-lg text-primary-dark">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Jouer au Quiz
               </button>
-              <a href="#comment-ca-marche" className="group inline-flex items-center px-6 py-3.5 rounded-full font-semibold text-sm text-white/80 border border-white/15 hover:bg-white/5 hover:border-white/25 hover:text-white transition-all">
+              <a href="#comment-ca-marche" className="group inline-flex items-center px-8 py-4.5 rounded-full font-semibold text-base text-white/80 border border-white/15 hover:bg-white/5 hover:border-white/25 hover:text-white transition-all">
                 Comment ça marche
-                <svg className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                <svg className="w-5 h-5 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
               </a>
             </div>
           </div>
