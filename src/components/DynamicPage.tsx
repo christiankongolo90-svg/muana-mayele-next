@@ -130,7 +130,6 @@ function FallbackPage() {
 
       <HowItWorks />
 
-      {/* Registration */}
       <section className="surface-light py-16 sm:py-24">
         <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">

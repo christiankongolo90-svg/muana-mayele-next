@@ -105,8 +105,6 @@ export default function RegistrationForm() {
 
   const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50/80 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all';
 
-  if (user) return null;
-
   // ── Registration / Login form ──
   return (
     <div id="inscription">
