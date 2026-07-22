@@ -25,17 +25,19 @@ export async function POST(req: Request) {
     const userRes = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
     if (userRes.rows.length === 0) return errorResponse('User not found', 404);
 
-    // Check if already played this window
-    const nowStr = new Date().toLocaleString('en-US', { timeZone: access.schedule?.timezone || 'Africa/Kinshasa' });
-    const nowLocal = new Date(nowStr);
-    if (access.schedule?.enabled && access.schedule.start_time) {
-      const [h, m] = access.schedule.start_time.split(':').map(Number);
-      nowLocal.setHours(h, m, 0, 0);
-    } else {
-      nowLocal.setHours(0, 0, 0, 0);
-    }
+    // Compute the start of the current session window
+    const tz = access.schedule?.timezone || 'Africa/Kinshasa';
+    const windowStartRes = await pool.query(
+      `SELECT (NOW() AT TIME ZONE $1)::date + $2::time AS window_start`,
+      [tz, access.schedule?.enabled && access.schedule.start_time ? access.schedule.start_time : '00:00']
+    );
+    const windowStart = windowStartRes.rows[0].window_start;
 
-    const existing = await pool.query('SELECT id FROM quiz_sessions WHERE user_id = $1 AND started_at >= $2 LIMIT 1', [userId, nowLocal.toISOString()]);
+    // Check if already played this session window
+    const existing = await pool.query(
+      `SELECT id FROM quiz_sessions WHERE user_id = $1 AND started_at >= ($2::timestamp AT TIME ZONE $3) LIMIT 1`,
+      [userId, windowStart, tz]
+    );
     if (existing.rows.length > 0) return errorResponse('Vous avez déjà participé au quiz durant cette session. Revenez à la prochaine session !', 429);
 
     // Get previously answered questions
@@ -78,6 +80,16 @@ export async function POST(req: Request) {
     }
 
     if (allQuestions.length === 0) return errorResponse('No questions available', 500);
+
+    // Use advisory lock to prevent race condition (two concurrent starts for the same user)
+    await pool.query('SELECT pg_advisory_xact_lock($1)', [userId]);
+
+    // Re-check after acquiring lock
+    const recheck = await pool.query(
+      `SELECT id FROM quiz_sessions WHERE user_id = $1 AND started_at >= ($2::timestamp AT TIME ZONE $3) LIMIT 1`,
+      [userId, windowStart, tz]
+    );
+    if (recheck.rows.length > 0) return errorResponse('Vous avez déjà participé au quiz durant cette session. Revenez à la prochaine session !', 429);
 
     const sessionRes = await pool.query('INSERT INTO quiz_sessions (user_id, total_questions) VALUES ($1, $2) RETURNING id', [userId, allQuestions.length]);
 
