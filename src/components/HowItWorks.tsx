@@ -44,13 +44,13 @@ export default function HowItWorks() {
   }, []);
 
   return (
-    <section ref={ref} id="comment-ca-marche" className="reveal surface-light py-20 sm:py-28">
+    <section ref={ref} id="comment-ca-marche" className="reveal surface-light py-14 sm:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-14 sm:mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-3">Étapes simples</span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">{title}</h2>
-          <p className="text-white/50 text-base sm:text-lg max-w-xl mx-auto">Quatre étapes simples pour participer au quiz et gagner des points.</p>
+          <h2 className="text-2xl sm:text-4xl font-bold text-white mb-4">{title}</h2>
+          <p className="text-white/50 text-sm sm:text-lg max-w-xl mx-auto">Quatre étapes simples pour participer au quiz et gagner des points.</p>
         </div>
 
         {/* Steps */}

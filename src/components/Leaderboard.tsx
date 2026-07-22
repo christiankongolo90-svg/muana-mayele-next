@@ -46,7 +46,7 @@ export default function Leaderboard() {
   const rankColors = ['', 'from-gold to-gold-dark', 'from-gray-300 to-gray-400', 'from-amber-600 to-amber-700'];
 
   return (
-    <section ref={ref} id="classement" className="reveal surface-dark py-20 sm:py-28">
+    <section ref={ref} id="classement" className="reveal surface-dark py-14 sm:py-28">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-14">
@@ -57,7 +57,7 @@ export default function Leaderboard() {
               EN DIRECT
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Classement des meilleurs joueurs</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold text-white mb-3">Classement des meilleurs joueurs</h2>
           <p className="text-white/40 text-sm">Mis à jour en temps réel</p>
         </div>
 
@@ -77,13 +77,13 @@ export default function Leaderboard() {
 
         {/* Podium */}
         {podiumOrder.length > 0 && (
-          <div className="flex items-end justify-center gap-3 sm:gap-5 mb-10 px-4">
+          <div className="flex items-end justify-center gap-2 sm:gap-5 mb-10 px-2 sm:px-4">
             {podiumOrder.map(player => {
               const isFirst = player.rank === 1;
               const isCurrentUser = user && player.user_id === user.id;
               const podiumClass = player.rank === 1 ? 'podium-1' : player.rank === 2 ? 'podium-2' : 'podium-3';
-              const height = isFirst ? 'h-28 sm:h-32' : player.rank === 2 ? 'h-20 sm:h-24' : 'h-16 sm:h-20';
-              const avatarSize = isFirst ? 'w-16 h-16 sm:w-18 sm:h-18 text-xl sm:text-2xl' : 'w-12 h-12 sm:w-14 sm:h-14 text-base';
+              const height = isFirst ? 'h-24 sm:h-32' : player.rank === 2 ? 'h-16 sm:h-24' : 'h-12 sm:h-20';
+              const avatarSize = isFirst ? 'w-14 h-14 sm:w-18 sm:h-18 text-lg sm:text-2xl' : 'w-10 h-10 sm:w-14 sm:h-14 text-sm sm:text-base';
 
               return (
                 <div key={player.rank} className={`flex flex-col items-center ${podiumClass}`}>
@@ -100,13 +100,13 @@ export default function Leaderboard() {
                       </div>
                     )}
                   </div>
-                  <span className={`font-semibold text-white text-xs sm:text-sm text-center max-w-[80px] sm:max-w-[100px] truncate ${isFirst ? 'text-sm sm:text-base' : ''}`}>
+                  <span className={`font-semibold text-white text-[11px] sm:text-sm text-center max-w-[70px] sm:max-w-[100px] truncate ${isFirst ? 'text-xs sm:text-base' : ''}`}>
                     {player.name.split(' ')[0]}
                   </span>
-                  <span className={`font-bold mt-0.5 mb-2 ${isFirst ? 'text-gold text-lg sm:text-xl' : 'text-white/60 text-sm'}`}>
+                  <span className={`font-bold mt-0.5 mb-2 ${isFirst ? 'text-gold text-base sm:text-xl' : 'text-white/60 text-xs sm:text-sm'}`}>
                     {player.total_points} <span className="text-[10px] opacity-50">pts</span>
                   </span>
-                  <div className={`w-20 sm:w-24 ${height} rounded-t-xl ${
+                  <div className={`w-16 sm:w-24 ${height} rounded-t-xl ${
                     isFirst
                       ? 'bg-gradient-to-t from-gold/20 to-gold/5 border-t-2 border-x border-gold/30'
                       : 'bg-gradient-to-t from-white/8 to-white/3 border-t border-x border-white/10'

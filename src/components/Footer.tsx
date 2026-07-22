@@ -9,10 +9,10 @@ export default function Footer() {
     <footer className="surface-deepest relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-12">
           {/* Brand */}
-          <div className="lg:col-span-1">
+          <div className="col-span-2 sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2.5 text-white font-bold text-lg mb-4">
               <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
                 <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-gold">

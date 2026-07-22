@@ -70,12 +70,12 @@ export default function DynamicPage() {
         switch (section.section_type) {
           case 'registration':
             return (
-              <section key={section.id} className="surface-light py-16 sm:py-24">
+              <section key={section.id} className="surface-light py-12 sm:py-24">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="text-center mb-12">
+                  <div className="text-center mb-8 sm:mb-12">
                     <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-3">Rejoignez la compétition</span>
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Inscrivez-vous et jouez</h2>
-                    <p className="text-white/50 text-base max-w-lg mx-auto">Créez votre compte en quelques secondes et commencez à jouer au quiz en direct.</p>
+                    <h2 className="text-2xl sm:text-4xl font-bold text-white mb-3">Inscrivez-vous et jouez</h2>
+                    <p className="text-white/50 text-sm sm:text-base max-w-lg mx-auto">Créez votre compte en quelques secondes et commencez à jouer au quiz en direct.</p>
                   </div>
                   <RegistrationForm />
                 </div>
@@ -109,12 +109,12 @@ function FallbackPage() {
 
       <HowItWorks />
 
-      <section className="surface-light py-16 sm:py-24">
+      <section className="surface-light py-12 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-3">Rejoignez la compétition</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Inscrivez-vous et jouez</h2>
-            <p className="text-white/50 text-base max-w-lg mx-auto">Créez votre compte en quelques secondes et commencez à jouer au quiz en direct.</p>
+            <h2 className="text-2xl sm:text-4xl font-bold text-white mb-3">Inscrivez-vous et jouez</h2>
+            <p className="text-white/50 text-sm sm:text-base max-w-lg mx-auto">Créez votre compte en quelques secondes et commencez à jouer au quiz en direct.</p>
           </div>
           <RegistrationForm />
         </div>

@@ -12,9 +12,9 @@ export default function Community() {
   const ref = useReveal<HTMLElement>();
 
   return (
-    <section ref={ref} className="reveal surface-dark py-20 sm:py-24">
+    <section ref={ref} className="reveal surface-dark py-14 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="glass-card rounded-3xl p-8 sm:p-12 lg:p-16 text-center relative overflow-hidden">
+        <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-12 lg:p-16 text-center relative overflow-hidden">
           {/* Accent gradient */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,184,0,0.08) 0%, transparent 60%)' }} />
@@ -23,7 +23,7 @@ export default function Community() {
 
           <div className="relative z-10">
             <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-3">Communauté</span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Rejoignez la communauté Muana Mayele</h2>
+            <h2 className="text-xl sm:text-3xl font-bold text-white mb-3">Rejoignez la communauté Muana Mayele</h2>
             <p className="text-white/50 text-base max-w-lg mx-auto mb-8">
               Suivez les résultats, les annonces et les meilleurs moments du quiz sur nos réseaux.
             </p>

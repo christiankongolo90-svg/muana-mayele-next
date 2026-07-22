@@ -15,12 +15,12 @@ export default function Benefits() {
   const ref = useReveal<HTMLElement>();
 
   return (
-    <section ref={ref} className="reveal surface-light py-20 sm:py-28">
+    <section ref={ref} className="reveal surface-light py-14 sm:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10 sm:mb-14">
           <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-3">Pourquoi nous rejoindre</span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Plus qu&apos;un quiz, une expérience</h2>
-          <p className="text-white/50 text-base sm:text-lg max-w-xl mx-auto">Rejoignez une communauté de joueurs passionnés et vivez le quiz autrement.</p>
+          <h2 className="text-2xl sm:text-4xl font-bold text-white mb-4">Plus qu&apos;un quiz, une expérience</h2>
+          <p className="text-white/50 text-sm sm:text-lg max-w-xl mx-auto">Rejoignez une communauté de joueurs passionnés et vivez le quiz autrement.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">

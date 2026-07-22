@@ -13,12 +13,12 @@ export default function Prizes() {
   const ref = useReveal<HTMLElement>();
 
   return (
-    <section ref={ref} className="reveal surface-mid py-20 sm:py-28">
+    <section ref={ref} className="reveal surface-mid py-14 sm:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10 sm:mb-14">
           <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-3">Récompenses</span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Des prix à chaque session</h2>
-          <p className="text-white/50 text-base sm:text-lg max-w-xl mx-auto">Les meilleurs joueurs sont récompensés. Plus vous êtes rapide et précis, plus vous gagnez.</p>
+          <h2 className="text-2xl sm:text-4xl font-bold text-white mb-4">Des prix à chaque session</h2>
+          <p className="text-white/50 text-sm sm:text-lg max-w-xl mx-auto">Les meilleurs joueurs sont récompensés. Plus vous êtes rapide et précis, plus vous gagnez.</p>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-3xl mx-auto lg:max-w-none">
