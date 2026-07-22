@@ -225,6 +225,11 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
   // ── Persistence ──
   const loadContent = useCallback(async (userId: string) => {
     try {
+      // Ensure the page_versions table exists
+      await fetch('/api/admin/editor/migrate', {
+        headers: { 'X-Admin-User-Id': userId },
+      });
+
       const res = await fetch(`/api/admin/editor?slug=${slug}`, {
         headers: { 'X-Admin-User-Id': userId },
       });
@@ -254,8 +259,12 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
       if (data.success) {
         setDirty(false);
         setLastSaved(new Date().toLocaleTimeString('fr-FR'));
+      } else {
+        alert('Erreur lors de la sauvegarde: ' + (data.error || 'Erreur inconnue'));
       }
-    } catch {}
+    } catch (e: any) {
+      alert('Erreur lors de la sauvegarde: ' + (e.message || 'Erreur réseau'));
+    }
     setSaving(false);
   }, [slug, content]);
 
@@ -271,8 +280,13 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
       if (data.success) {
         setDirty(false);
         setLastSaved(new Date().toLocaleTimeString('fr-FR'));
+        alert('Page publiée avec succès !');
+      } else {
+        alert('Erreur lors de la publication: ' + (data.error || 'Erreur inconnue'));
       }
-    } catch {}
+    } catch (e: any) {
+      alert('Erreur lors de la publication: ' + (e.message || 'Erreur réseau'));
+    }
     setPublishing(false);
   }, [slug, content]);
 
