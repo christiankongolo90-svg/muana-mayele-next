@@ -190,42 +190,6 @@ export default function Hero() {
               {/* Main image */}
               <img src={heroImage} alt="Participant au quiz Muana Mayele" className="w-full h-auto relative z-10 drop-shadow-2xl" loading="eager" />
 
-              {/* Floating cards */}
-              <div className="absolute -top-2 -left-2 sm:-left-6 glass-card rounded-xl px-3 py-2 flex items-center gap-2 animate-[float_4s_ease-in-out_infinite] z-20">
-                <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                </div>
-                <div>
-                  <span className="text-white text-xs font-semibold block leading-tight">20 questions</span>
-                  <span className="text-white/40 text-[10px]">par session</span>
-                </div>
-              </div>
-
-              <div className="absolute top-1/3 -right-3 sm:-right-8 glass-card rounded-xl px-3 py-2 flex items-center gap-2 animate-[float_5s_ease-in-out_infinite_1s] z-20">
-                <div className="w-8 h-8 rounded-lg bg-green/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <span className="text-white text-xs font-semibold block leading-tight">50 $</span>
-                  <span className="text-white/40 text-[10px]">à gagner</span>
-                </div>
-              </div>
-
-              <div className="absolute bottom-[10%] -left-4 sm:-left-8 glass-card rounded-xl px-3 py-2 flex items-center gap-2 animate-[float_4.5s_ease-in-out_infinite_0.5s] z-20">
-                <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <div>
-                  <span className="text-white text-xs font-semibold block leading-tight">50 pts</span>
-                  <span className="text-white/40 text-[10px]">par bonne réponse</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
