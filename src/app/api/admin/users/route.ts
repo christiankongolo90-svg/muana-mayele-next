@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
     const countRes = await pool.query(`SELECT COUNT(*) as total FROM users ${where}`, params);
     const total = Number(countRes.rows[0].total);
-    const usersRes = await pool.query(`SELECT id, full_name, email, phone, country_code, profession, neighborhood, role, created_at FROM users ${where} ORDER BY id DESC LIMIT $${params.length+1} OFFSET $${params.length+2}`, [...params, limit, offset]);
+    const usersRes = await pool.query(`SELECT id, full_name, email, phone, country_code, profession, neighborhood, role, created_at FROM users ${where} ORDER BY id ASC LIMIT $${params.length+1} OFFSET $${params.length+2}`, [...params, limit, offset]);
 
     return successResponse({ users: usersRes.rows, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
   } catch (err: any) {
