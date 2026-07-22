@@ -1,6 +1,6 @@
 import type { PageContent } from './types';
 
-export const CURRENT_EDITOR_VERSION = 2;
+export const CURRENT_EDITOR_VERSION = 3;
 
 export const defaultPageContent: PageContent = {
   version: CURRENT_EDITOR_VERSION,
@@ -34,18 +34,18 @@ export const defaultPageContent: PageContent = {
         {
           id: 'hero-cta', type: 'button',
           content: { text: 'Jouer au Quiz', href: '/quiz' },
-          styles: { backgroundColor: '#FFB800', color: '#002d75', fontSize: '15px', fontWeight: '700', paddingTop: '14px', paddingBottom: '14px', paddingLeft: '32px', paddingRight: '32px', borderRadius: '9999px' },
+          styles: { backgroundColor: '#FFB800', color: '#002d75', fontSize: '18px', fontWeight: '700', paddingTop: '18px', paddingBottom: '18px', paddingLeft: '40px', paddingRight: '40px', borderRadius: '9999px' },
         },
         {
           id: 'hero-cta2', type: 'button',
           content: { text: 'Comment ça marche', href: '#comment-ca-marche' },
-          styles: { backgroundColor: 'transparent', color: 'rgba(255,255,255,0.8)', fontSize: '14px', fontWeight: '600', paddingTop: '14px', paddingBottom: '14px', paddingLeft: '24px', paddingRight: '24px', borderRadius: '9999px', borderWidth: '1px', borderColor: 'rgba(255,255,255,0.15)', borderStyle: 'solid', marginLeft: '12px' },
+          styles: { backgroundColor: 'transparent', color: 'rgba(255,255,255,0.8)', fontSize: '16px', fontWeight: '600', paddingTop: '18px', paddingBottom: '18px', paddingLeft: '32px', paddingRight: '32px', borderRadius: '9999px', borderWidth: '1px', borderColor: 'rgba(255,255,255,0.15)', borderStyle: 'solid', marginLeft: '16px' },
         },
         {
           id: 'hero-img', type: 'image',
           content: { src: '/person_hero.png', alt: 'Participant au quiz Muana Mayele' },
-          styles: { width: '420px', maxWidth: '85vw', marginTop: '48px', marginLeft: 'auto', marginRight: 'auto' },
-          responsive: { mobile: { width: '300px' } },
+          styles: { width: '500px', maxWidth: '100%', marginTop: '48px', marginLeft: 'auto', marginRight: 'auto' },
+          responsive: { mobile: { width: '100%' } },
         },
       ],
     },
