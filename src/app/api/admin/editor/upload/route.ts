@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!supabaseUrl || !supabaseKey) return errorResponse('Storage not configured', 500);
+    if (!supabaseUrl || !supabaseKey) return errorResponse('Storage non configuré. Vérifiez les variables SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY.', 500);
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const ext = file.name.split('.').pop() || 'png';
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       .from('site-content')
       .upload(storagePath, buffer, { contentType: file.type, upsert: true });
 
-    if (uploadError) return errorResponse('Failed to upload image', 500);
+    if (uploadError) return errorResponse('Échec du téléversement: ' + uploadError.message, 500);
 
     const { data: urlData } = supabase.storage.from('site-content').getPublicUrl(storagePath);
 

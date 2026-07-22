@@ -203,7 +203,7 @@ function ImageUpload({ src, onChange }: { src: string; onChange: (url: string) =
   const [uploading, setUploading] = useState(false);
 
   async function handleFile(file: File) {
-    if (!file.type.startsWith('image/')) return;
+    if (!file.type.startsWith('image/')) { alert('Fichier non valide. Veuillez sélectionner une image.'); return; }
     if (file.size > 5 * 1024 * 1024) { alert('Image trop volumineuse (max 5 Mo)'); return; }
     setUploading(true);
     try {
@@ -215,8 +215,14 @@ function ImageUpload({ src, onChange }: { src: string; onChange: (url: string) =
         body: fd,
       });
       const data = await res.json();
-      if (data.success) onChange(data.data.url);
-    } catch {}
+      if (data.success && data.data?.url) {
+        onChange(data.data.url);
+      } else {
+        alert('Erreur: ' + (data.error || 'Impossible de téléverser l\'image'));
+      }
+    } catch (e: any) {
+      alert('Erreur réseau: ' + (e.message || 'Impossible de téléverser l\'image'));
+    }
     setUploading(false);
   }
 

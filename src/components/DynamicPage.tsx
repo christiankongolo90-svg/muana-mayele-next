@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { getPageSections } from '@/lib/api';
-import PageRenderer from '@/components/editor/PageRenderer';
 import Hero from '@/components/Hero';
 import RegistrationForm from '@/components/RegistrationForm';
 import HowItWorks from '@/components/HowItWorks';
@@ -49,30 +48,12 @@ function ImageSection({ section }: { section: any }) {
 export default function DynamicPage() {
   const [sections, setSections] = useState<any[] | null>(null);
   const [error, setError] = useState(false);
-  const [hasPublished, setHasPublished] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetch('/api/editor/published?slug=home')
-      .then(r => r.json())
-      .then(d => {
-        if (d.success && d.data?.content?.sections?.length > 0) {
-          setHasPublished(true);
-        } else {
-          setHasPublished(false);
-        }
-      })
-      .catch(() => setHasPublished(false));
-
     getPageSections()
       .then(data => setSections(data.sections))
       .catch(() => setError(true));
   }, []);
-
-  if (hasPublished === null) return null;
-
-  if (hasPublished) {
-    return <PageRenderer slug="home" />;
-  }
 
   if (error || sections === null || sections.length === 0) {
     return <FallbackPage />;
@@ -117,7 +98,6 @@ export default function DynamicPage() {
       <Prizes />
       <Benefits />
       <Community />
-
     </>
   );
 }
@@ -144,7 +124,6 @@ function FallbackPage() {
       <Prizes />
       <Benefits />
       <Community />
-
     </>
   );
 }
