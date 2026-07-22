@@ -77,7 +77,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative min-h-screen lg:min-h-[92vh] flex items-center overflow-hidden surface-hero">
+    <section className="relative lg:min-h-[92vh] flex items-center overflow-hidden surface-hero">
       {/* Background elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Subtle grid pattern */}
