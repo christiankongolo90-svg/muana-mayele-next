@@ -52,8 +52,8 @@ export default function AdminUsersPage() {
 
       const BOM = '\uFEFF';
       const headers = ['ID', 'Nom', 'Code Pays', 'Téléphone', 'Email', 'Profession', 'Quartier/Ville', 'Rôle', "Date d'inscription"];
-      const rows = allUsers.map(u => [
-        u.id, `"${(u.full_name || '').replace(/"/g, '""')}"`, `"${u.country_code || ''}"`,
+      const rows = allUsers.map((u, i) => [
+        i + 1, `"${(u.full_name || '').replace(/"/g, '""')}"`, `"${u.country_code || ''}"`,
         `"${u.phone || ''}"`, `"${(u.email || '').replace(/"/g, '""')}"`,
         `"${(u.profession || '').replace(/"/g, '""')}"`, `"${(u.neighborhood || '').replace(/"/g, '""')}"`,
         u.role || 'user', `"${u.created_at || ''}"`
@@ -102,9 +102,9 @@ export default function AdminUsersPage() {
               ) : users.length === 0 ? (
                 <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Aucun utilisateur trouve</td></tr>
               ) : (
-                users.map(u => (
+                users.map((u, index) => (
                   <tr key={u.id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-500">{u.id}</td>
+                    <td className="px-4 py-3 text-gray-500">{(page - 1) * 20 + index + 1}</td>
                     <td className="px-4 py-3 font-medium text-dark">
                       {u.full_name}
                       {u.email && <span className="block text-xs text-gray-400">{u.email}</span>}

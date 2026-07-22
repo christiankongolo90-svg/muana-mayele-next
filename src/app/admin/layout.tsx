@@ -12,7 +12,7 @@ const navItems = [
   { href: '/admin/categories', label: 'Categories', icon: '\u{1F4C1}' },
   { href: '/admin/sessions', label: 'Sessions', icon: '\u{1F3AE}' },
   { href: '/admin/editor', label: '\u00C9diteur visuel', icon: '\u270F\uFE0F' },
-  { href: '/admin/page-builder', label: 'Constructeur de page', icon: '\u{1F3D7}\uFE0F' },
+
   { href: '/admin/settings', label: 'Parametres', icon: '\u2699\uFE0F' },
   { href: '/admin/site-content', label: 'Contenu du site', icon: '\u{1F4DD}' },
 ];

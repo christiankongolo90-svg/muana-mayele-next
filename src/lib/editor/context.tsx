@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { PageContent, Section, Block, ElementStyles, ViewportMode, BlockType } from './types';
 import { createBlock, createSection, generateId } from './types';
-import { defaultPageContent } from './defaults';
+import { defaultPageContent, CURRENT_EDITOR_VERSION } from './defaults';
 
 interface EditorCtx {
   content: PageContent;
@@ -230,7 +230,12 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
       });
       const data = await res.json();
       if (data.success && data.data?.content) {
-        setContentRaw(data.data.content);
+        const saved = data.data.content;
+        if (saved.version && saved.version >= CURRENT_EDITOR_VERSION) {
+          setContentRaw(saved);
+        } else {
+          setContentRaw(defaultPageContent);
+        }
         setDirty(false);
       }
     } catch {}

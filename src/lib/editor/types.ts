@@ -64,6 +64,7 @@ export interface Section {
 }
 
 export interface PageContent {
+  version?: number;
   sections: Section[];
 }
 
