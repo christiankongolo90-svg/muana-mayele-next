@@ -73,21 +73,18 @@ export default function DynamicPage() {
           case 'registration':
             return (
               <section key={section.id} className="surface-light py-16 sm:py-24">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="text-center mb-12">
                     <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-3">Rejoignez la compétition</span>
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Inscrivez-vous et jouez</h2>
                     <p className="text-white/50 text-base max-w-lg mx-auto">Créez votre compte en quelques secondes et commencez à jouer au quiz en direct.</p>
                   </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-                    <div><RegistrationForm /></div>
-                    <div className="lg:sticky lg:top-24"><HowItWorks /></div>
-                  </div>
+                  <RegistrationForm />
                 </div>
               </section>
             );
           case 'how_it_works':
-            return null;
+            return <HowItWorks key={section.id} />;
           case 'leaderboard':
             return <Leaderboard key={section.id} />;
           case 'text':
@@ -113,18 +110,17 @@ function FallbackPage() {
     <>
       <Hero />
 
-      {/* Registration + How it works */}
+      <HowItWorks />
+
+      {/* Registration */}
       <section className="surface-light py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="inline-block text-gold/70 text-xs font-semibold uppercase tracking-widest mb-3">Rejoignez la compétition</span>
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Inscrivez-vous et jouez</h2>
             <p className="text-white/50 text-base max-w-lg mx-auto">Créez votre compte en quelques secondes et commencez à jouer au quiz en direct.</p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-            <div><RegistrationForm /></div>
-            <div className="lg:sticky lg:top-24"><HowItWorks /></div>
-          </div>
+          <RegistrationForm />
         </div>
       </section>
 
