@@ -17,7 +17,10 @@ export async function GET(req: NextRequest) {
 
     return successResponse({
       results: { session_id: r.id, user_name: r.full_name, total_questions: Number(r.total_questions), correct_answers: Number(r.correct_answers), wrong_answers: Number(r.wrong_answers), score: Number(r.score), total_points: Number(r.total_points), percentage: Number(r.percentage), time_taken: Number(r.time_taken), started_at: r.started_at, ended_at: r.ended_at },
-      answers: aRes.rows.map((a: any) => ({ ...a, options: typeof a.options === 'string' ? JSON.parse(a.options) : a.options })),
+      answers: aRes.rows.map((a: any) => {
+        const { correct_answer, ...rest } = a;
+        return { ...rest, options: typeof a.options === 'string' ? JSON.parse(a.options) : a.options, ...(a.is_correct ? { correct_answer: Number(correct_answer) } : {}) };
+      }),
     });
   } catch (err: any) {
     return errorResponse('Failed to fetch results', 500);

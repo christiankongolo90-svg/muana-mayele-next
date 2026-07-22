@@ -242,9 +242,9 @@ export default function QuizPage() {
                     optionClass = 'border-2 border-primary bg-primary/10';
                   }
                   if (showFeedback) {
-                    if (i === correctAnswer) {
+                    if (isCorrect && i === selectedAnswer) {
                       optionClass = 'border-2 border-green-500 bg-green-50';
-                    } else if (selectedAnswer === i && i !== correctAnswer) {
+                    } else if (!isCorrect && selectedAnswer === i) {
                       optionClass = 'border-2 border-red bg-red-50';
                     } else {
                       optionClass = 'border-2 border-gray-100 opacity-50';
@@ -259,13 +259,13 @@ export default function QuizPage() {
                       className={`w-full flex items-center gap-3 sm:gap-4 rounded-xl px-4 py-3.5 text-left transition-all ${optionClass}`}
                     >
                       <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
-                        showFeedback && i === correctAnswer ? 'bg-green-500 text-white' :
-                        showFeedback && selectedAnswer === i && i !== correctAnswer ? 'bg-red text-white' :
+                        showFeedback && isCorrect && i === selectedAnswer ? 'bg-green-500 text-white' :
+                        showFeedback && !isCorrect && selectedAnswer === i ? 'bg-red text-white' :
                         selectedAnswer === i && !showFeedback ? 'bg-primary text-white' :
                         'bg-gray-100 text-gray-600'
                       }`}>
-                        {showFeedback && i === correctAnswer ? '\u2713' :
-                         showFeedback && selectedAnswer === i && i !== correctAnswer ? '\u2717' :
+                        {showFeedback && isCorrect && i === selectedAnswer ? '\u2713' :
+                         showFeedback && !isCorrect && selectedAnswer === i ? '\u2717' :
                          getOptionLetter(i)}
                       </span>
                       <span className="text-sm sm:text-base text-dark flex-1">{option}</span>

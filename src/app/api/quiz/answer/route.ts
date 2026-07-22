@@ -19,7 +19,9 @@ export async function POST(req: Request) {
     const isCorrect = Number(selected_answer) === Number(qRes.rows[0].correct_answer);
     await pool.query('INSERT INTO quiz_answers (session_id, question_id, selected_answer, is_correct) VALUES ($1,$2,$3,$4)', [session_id, question_id, selected_answer, isCorrect]);
 
-    return successResponse({ is_correct: isCorrect, correct_answer: Number(qRes.rows[0].correct_answer), points_earned: isCorrect ? POINTS_PER_CORRECT : 0 });
+    const response: any = { is_correct: isCorrect, points_earned: isCorrect ? POINTS_PER_CORRECT : 0 };
+    if (isCorrect) response.correct_answer = Number(qRes.rows[0].correct_answer);
+    return successResponse(response);
   } catch (err: any) {
     return errorResponse('Failed to submit answer', 500);
   }

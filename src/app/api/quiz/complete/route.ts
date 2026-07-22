@@ -26,7 +26,10 @@ export async function POST(req: Request) {
 
     return successResponse({
       results: { session_id: r.id, total_questions: Number(r.total_questions), correct_answers: Number(r.correct_answers), wrong_answers: Number(r.wrong_answers), score: Number(r.score), total_points: Number(r.total_points), percentage: Number(r.percentage), time_taken: Number(r.time_taken) },
-      answers: aRes.rows.map((a: any) => ({ ...a, options: typeof a.options === 'string' ? JSON.parse(a.options) : a.options })),
+      answers: aRes.rows.map((a: any) => {
+        const { correct_answer, ...rest } = a;
+        return { ...rest, options: typeof a.options === 'string' ? JSON.parse(a.options) : a.options, ...(a.is_correct ? { correct_answer: Number(correct_answer) } : {}) };
+      }),
     }, 'Quiz completed!');
   } catch (err: any) {
     return errorResponse('Failed to complete quiz', 500);

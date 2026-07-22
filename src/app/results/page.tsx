@@ -198,15 +198,15 @@ export default function ResultsPage() {
                 <div className="space-y-1.5">
                   {a.options.map((opt, j) => {
                     let cls = 'text-gray-500';
-                    if (j === a.correct_answer) cls = 'text-green-700 font-medium bg-green-50 border-green-200';
-                    else if (a.selected_answer === j && j !== a.correct_answer) cls = 'text-red-700 font-medium bg-red-50 border-red-200';
+                    if (a.is_correct && j === a.selected_answer) cls = 'text-green-700 font-medium bg-green-50 border-green-200';
+                    else if (!a.is_correct && a.selected_answer === j) cls = 'text-red-700 font-medium bg-red-50 border-red-200';
 
                     return (
                       <div key={j} className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded border border-transparent ${cls}`}>
                         <span className="font-bold w-5">{getOptionLetter(j)}</span>
                         <span className="flex-1">{opt}</span>
-                        {j === a.correct_answer && <span className="text-green-500">&#x2713;</span>}
-                        {a.selected_answer === j && j !== a.correct_answer && <span className="text-red">&#x2717;</span>}
+                        {a.is_correct && j === a.selected_answer && <span className="text-green-500">&#x2713;</span>}
+                        {!a.is_correct && a.selected_answer === j && <span className="text-red">&#x2717;</span>}
                       </div>
                     );
                   })}
