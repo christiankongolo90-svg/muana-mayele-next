@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { sendPasscode, verifyPasscode, getQuizSettings, type QuizSettings } from '@/lib/api';
+import { sendPasscode, verifyPasscode } from '@/lib/api';
 import { countries } from '@/lib/countries';
 import { drcLocations } from '@/lib/locations';
 
@@ -21,7 +21,6 @@ export default function RegistrationForm() {
   const [locationQuery, setLocationQuery] = useState('');
   const [showLocations, setShowLocations] = useState(false);
   const [passcodeType, setPasscodeType] = useState<'register' | 'login'>('register');
-  const [settings, setSettings] = useState<QuizSettings | null>(null);
 
   const selectedCountry = countries.find(c => c.code === formData.countryCode);
 
@@ -30,12 +29,6 @@ export default function RegistrationForm() {
     const t = setTimeout(() => setCountdown(c => c - 1), 1000);
     return () => clearTimeout(t);
   }, [countdown]);
-
-  useEffect(() => {
-    if (user) {
-      getQuizSettings().then(setSettings).catch(() => {});
-    }
-  }, [user]);
 
   const filteredLocations = useMemo(() => {
     if (!locationQuery || locationQuery.length < 2) return [];
@@ -112,59 +105,7 @@ export default function RegistrationForm() {
 
   const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50/80 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all';
 
-  // ── Logged-in dashboard card ──
-  if (user) {
-    const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-    const nextSession = settings?.schedule?.next_session;
-    const nextText = nextSession ? `${dayNames[nextSession.day_of_week] || ''} de ${nextSession.start?.slice(0, 5)} à ${nextSession.end?.slice(0, 5)}` : null;
-
-    return (
-      <div id="inscription">
-        <div className="glass-card rounded-2xl p-6 sm:p-8">
-          <div className="flex items-center gap-4 mb-5">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-lg font-bold text-primary-dark shrink-0">
-              {user.full_name.charAt(0).toUpperCase()}
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-white font-semibold text-lg truncate">Bon retour, {user.full_name.split(' ')[0]}</h3>
-              <p className="text-white/40 text-sm">Prêt pour le prochain défi ?</p>
-            </div>
-          </div>
-
-          {nextText && (
-            <div className="flex items-center gap-3 bg-white/[0.04] rounded-xl px-4 py-3 mb-5 border border-white/[0.06]">
-              <div className="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <span className="text-gold/70 text-[10px] font-semibold uppercase tracking-wider block">Prochaine session</span>
-                <span className="text-white text-sm font-medium">{nextText}</span>
-              </div>
-            </div>
-          )}
-
-          {settings?.is_open && (
-            <div className="flex items-center gap-2 bg-green/10 border border-green/20 rounded-xl px-4 py-3 mb-5">
-              <span className="w-2 h-2 bg-green rounded-full animate-pulse" />
-              <span className="text-green text-sm font-semibold">Le quiz est en cours ! Rejoignez maintenant.</span>
-            </div>
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-2.5">
-            <button onClick={() => router.push('/quiz')} className="btn-cta flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-primary-dark">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>
-              Jouer au Quiz
-            </button>
-            <button onClick={() => router.push('/profile')} className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white/70 border border-white/15 hover:bg-white/5 hover:text-white transition-colors">
-              Voir mon profil
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (user) return null;
 
   // ── Registration / Login form ──
   return (
