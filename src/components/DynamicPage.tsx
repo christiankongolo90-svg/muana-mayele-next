@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getPageSections } from '@/lib/api';
 import Hero from '@/components/Hero';
-import StatsBar from '@/components/StatsBar';
+
 import RegistrationForm from '@/components/RegistrationForm';
 import HowItWorks from '@/components/HowItWorks';
 import Leaderboard from '@/components/Leaderboard';
@@ -66,7 +66,6 @@ export default function DynamicPage() {
   return (
     <>
       <Hero />
-      <StatsBar />
 
       {/* Dynamic sections from DB */}
       {otherSections.map(section => {
@@ -113,7 +112,6 @@ function FallbackPage() {
   return (
     <>
       <Hero />
-      <StatsBar />
 
       {/* Registration + How it works */}
       <section className="surface-light py-16 sm:py-24">
