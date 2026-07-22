@@ -28,8 +28,43 @@ export async function POST(req: Request) {
       [slug]
     );
 
+    // Sync editor content to site_content so React components pick up changes
+    await syncToSiteContent(pool, content);
+
     return successResponse(rows[0]);
   } catch (err: any) {
     return errorResponse('Failed to publish: ' + (err.message || 'Unknown error'), 500);
+  }
+}
+
+async function syncToSiteContent(pool: any, content: any) {
+  try {
+    for (const section of content.sections) {
+      for (const block of section.children || []) {
+        // Sync hero image
+        if (block.id === 'hero-img' && block.content?.src) {
+          await pool.query(
+            `UPDATE site_content SET content_value = $1 WHERE section = 'hero' AND content_key = 'image'`,
+            [block.content.src]
+          );
+        }
+        // Sync hero title
+        if (block.id === 'hero-h1' && block.content?.text) {
+          await pool.query(
+            `UPDATE site_content SET content_value = $1 WHERE section = 'hero' AND content_key = 'title'`,
+            [block.content.text]
+          );
+        }
+        // Sync hero description
+        if (block.id === 'hero-desc' && block.content?.text) {
+          await pool.query(
+            `UPDATE site_content SET content_value = $1 WHERE section = 'hero' AND content_key = 'description'`,
+            [block.content.text]
+          );
+        }
+      }
+    }
+  } catch {
+    // Non-critical — don't fail the publish if sync fails
   }
 }

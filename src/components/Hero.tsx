@@ -19,6 +19,8 @@ export default function Hero() {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [hasCountdown, setHasCountdown] = useState(false);
   const [heroImage, setHeroImage] = useState('/person_hero.png');
+  const [heroTitle, setHeroTitle] = useState('');
+  const [heroDesc, setHeroDesc] = useState('');
 
   useEffect(() => {
     getQuizSettings()
@@ -34,6 +36,10 @@ export default function Hero() {
         const items = data?.content || [];
         const heroImg = items.find((c: any) => c.section === 'hero' && c.content_key === 'image');
         if (heroImg?.content_value) setHeroImage(resolveImageUrl(heroImg.content_value));
+        const title = items.find((c: any) => c.section === 'hero' && c.content_key === 'title');
+        if (title?.content_value) setHeroTitle(title.content_value);
+        const desc = items.find((c: any) => c.section === 'hero' && c.content_key === 'description');
+        if (desc?.content_value) setHeroDesc(desc.content_value);
       })
       .catch(() => {});
   }, []);
@@ -106,7 +112,7 @@ export default function Hero() {
             </h1>
 
             <p className="text-white/60 text-base sm:text-lg leading-relaxed mb-8">
-              Participez au quiz en direct, répondez rapidement et grimpez au classement national. Des récompenses attendent les meilleurs.
+              {heroDesc || 'Participez au quiz en direct, répondez rapidement et grimpez au classement national. Des récompenses attendent les meilleurs.'}
             </p>
 
             {/* Countdown */}
