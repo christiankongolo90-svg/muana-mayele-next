@@ -8,11 +8,10 @@ import { getQuizSettings, getSiteContent, type QuizSettings } from '@/lib/api';
 function resolveImageUrl(value: string): string {
   if (!value) return '/person_hero.png';
   if (value.startsWith('http')) return value;
-  if (value.startsWith('uploads/')) return `/${value}`;
-  return `/${value}`;
+  return value.startsWith('/') ? value : `/${value}`;
 }
 
-export default function Hero({ heroImageSize }: { heroImageSize?: number } = {}) {
+export default function Hero() {
   const { user } = useAuth();
   const router = useRouter();
   const [settings, setSettings] = useState<QuizSettings | null>(null);
@@ -25,9 +24,7 @@ export default function Hero({ heroImageSize }: { heroImageSize?: number } = {})
     getQuizSettings()
       .then(s => {
         setSettings(s);
-        if (!s.is_open && s.schedule?.next_session?.datetime) {
-          setHasCountdown(true);
-        }
+        if (!s.is_open && s.schedule?.next_session?.datetime) setHasCountdown(true);
       })
       .catch(() => {})
       .finally(() => setChecking(false));
@@ -36,9 +33,7 @@ export default function Hero({ heroImageSize }: { heroImageSize?: number } = {})
       .then(data => {
         const items = data?.content || [];
         const heroImg = items.find((c: any) => c.section === 'hero' && c.content_key === 'image');
-        if (heroImg?.content_value) {
-          setHeroImage(resolveImageUrl(heroImg.content_value));
-        }
+        if (heroImg?.content_value) setHeroImage(resolveImageUrl(heroImg.content_value));
       })
       .catch(() => {});
   }, []);
@@ -46,8 +41,7 @@ export default function Hero({ heroImageSize }: { heroImageSize?: number } = {})
   const updateCountdown = useCallback(() => {
     if (!settings?.schedule?.next_session?.datetime) return;
     const target = new Date(settings.schedule.next_session.datetime).getTime();
-    const now = Date.now();
-    const diff = Math.max(0, target - now);
+    const diff = Math.max(0, target - Date.now());
     setCountdown({
       days: Math.floor(diff / 86400000),
       hours: Math.floor((diff % 86400000) / 3600000),
@@ -64,10 +58,7 @@ export default function Hero({ heroImageSize }: { heroImageSize?: number } = {})
   }, [hasCountdown, updateCountdown]);
 
   function playQuiz() {
-    if (!user) {
-      document.getElementById('inscription')?.scrollIntoView({ behavior: 'smooth' });
-      return;
-    }
+    if (!user) { document.getElementById('inscription')?.scrollIntoView({ behavior: 'smooth' }); return; }
     router.push('/quiz');
   }
 
@@ -80,75 +71,62 @@ export default function Hero({ heroImageSize }: { heroImageSize?: number } = {})
   }
 
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #002d75 0%, #003893 30%, #001f52 70%, #000d2b 100%)' }}>
-      {/* Animated background particles */}
+    <section className="relative min-h-[92vh] flex items-center overflow-hidden surface-hero">
+      {/* Background elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Large orbiting ring */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-white/[0.03] animate-[spin_60s_linear_infinite]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full border border-gold/[0.04] animate-[spin_90s_linear_infinite_reverse]" />
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
-        {/* Floating geometric shapes */}
-        <div className="absolute top-[15%] left-[10%] w-3 h-3 bg-gold/20 rounded-full animate-[float-slow_6s_ease-in-out_infinite]" />
-        <div className="absolute top-[25%] right-[15%] w-2 h-2 bg-white/15 rounded-full animate-[float-slow_8s_ease-in-out_infinite_1s]" />
-        <div className="absolute bottom-[30%] left-[20%] w-4 h-4 bg-gold/10 rotate-45 animate-[float-slow_7s_ease-in-out_infinite_2s]" />
-        <div className="absolute top-[60%] right-[10%] w-2.5 h-2.5 bg-white/10 rounded-full animate-[float-slow_5s_ease-in-out_infinite_0.5s]" />
-        <div className="absolute top-[80%] left-[5%] w-2 h-2 bg-gold/15 rounded-full animate-[float-slow_9s_ease-in-out_infinite_3s]" />
-        <div className="hidden lg:block absolute top-[10%] right-[30%] w-1.5 h-1.5 bg-white/20 rounded-full animate-[float-slow_4s_ease-in-out_infinite_1.5s]" />
+        {/* Radial accents */}
+        <div className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,184,0,0.06) 0%, transparent 55%)' }} />
+        <div className="absolute -bottom-60 -left-40 w-[600px] h-[600px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(0,80,200,0.15) 0%, transparent 55%)' }} />
 
-        {/* Radial glows */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,184,0,0.08) 0%, transparent 60%)' }} />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(0,56,147,0.3) 0%, transparent 60%)' }} />
+        {/* Floating dots */}
+        <div className="absolute top-[18%] left-[8%] w-2 h-2 bg-gold/20 rounded-full animate-[float-slow_7s_ease-in-out_infinite]" />
+        <div className="absolute top-[70%] right-[12%] w-1.5 h-1.5 bg-white/15 rounded-full animate-[float-slow_9s_ease-in-out_infinite_2s]" />
+        <div className="hidden lg:block absolute top-[30%] right-[25%] w-2 h-2 bg-gold/15 rounded-full animate-[float-slow_6s_ease-in-out_infinite_1s]" />
       </div>
 
       {/* Texture overlay */}
-      <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'url(/part_of_back.png)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'url(/part_of_back.png)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 w-full pt-24 pb-20 sm:pt-32 sm:pb-28">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Text content */}
-          <div className="text-white max-w-xl animate-[slideInLeft_0.8s_ease]">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-28 pb-20 sm:pt-36 sm:pb-28">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          {/* Text */}
+          <div className="text-white max-w-xl animate-[slideInLeft_0.7s_ease]">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-gold/15 border border-gold/25 rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm">
-              <span className="w-2 h-2 bg-gold rounded-full animate-pulse" />
-              <span className="text-gold text-xs font-semibold uppercase tracking-wider">Quiz interactif en direct</span>
+            <div className="inline-flex items-center gap-2 bg-white/[0.07] border border-white/[0.12] rounded-full px-4 py-1.5 mb-6">
+              <span className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
+              <span className="text-gold/90 text-xs font-semibold uppercase tracking-widest">Quiz interactif en direct</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] mb-6 tracking-tight">
-              Participez au
-              <span className="block mt-1" style={{
-                background: 'linear-gradient(135deg, #FFB800 0%, #FFC933 50%, #E5A600 100%)',
-                backgroundSize: '200% auto',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                animation: 'gradient-shift 3s ease infinite',
-              }}>
-                Quiz Live
-              </span>
-              <span className="block text-2xl sm:text-3xl lg:text-4xl font-bold text-white/90 mt-2">
-                et remportez des points!
-              </span>
+            <h1 className="text-[2.5rem] sm:text-5xl lg:text-[3.4rem] font-extrabold leading-[1.08] mb-4 tracking-tight">
+              Testez vos connaissances.{' '}
+              <span className="text-gold">Affrontez la communauté.</span>
             </h1>
 
-            <p className="text-white/70 text-base sm:text-lg leading-relaxed mb-8 max-w-md">
-              Testez vos connaissances sur la RDC et mesurez-vous aux meilleurs joueurs congolais !
+            <p className="text-white/60 text-base sm:text-lg leading-relaxed mb-8 max-w-[440px]">
+              Participez au quiz en direct, répondez rapidement et grimpez au classement national. Des récompenses attendent les meilleurs.
             </p>
 
-            {/* Quiz closed: next session + countdown */}
+            {/* Countdown */}
             {!checking && settings && !settings.is_open && (
-              <div className="mb-6 animate-[fadeIn_0.5s_ease_0.3s_backwards]">
+              <div className="mb-8 animate-[fadeIn_0.5s_ease_0.3s_backwards]">
                 {settings.schedule?.next_session && (
-                  <div className="flex items-center gap-3 glass-card rounded-xl px-5 py-3.5 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center shrink-0">
-                      <span className="text-xl">&#x1F4C5;</span>
+                  <div className="flex items-center gap-3 glass-card rounded-xl px-4 py-3 mb-4 max-w-fit">
+                    <div className="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
+                      <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
                     </div>
                     <div>
-                      <span className="text-gold text-xs font-semibold uppercase tracking-wider block">Prochaine session</span>
+                      <span className="text-gold/70 text-[11px] font-semibold uppercase tracking-wider block">Prochaine session</span>
                       <span className="text-white text-sm font-medium">{getNextSessionText()}</span>
                     </div>
                   </div>
                 )}
                 {hasCountdown && (
-                  <div className="flex gap-3 sm:gap-4 mb-4">
+                  <div className="flex gap-2.5 sm:gap-3 mb-2">
                     {[
                       { val: countdown.days, label: 'Jours' },
                       { val: countdown.hours, label: 'Heures' },
@@ -156,79 +134,95 @@ export default function Hero({ heroImageSize }: { heroImageSize?: number } = {})
                       { val: countdown.seconds, label: 'Sec' },
                     ].map((item, i) => (
                       <div key={item.label} className="flex items-center gap-2">
-                        {i > 0 && <span className="text-gold/60 font-bold text-xl">:</span>}
-                        <div className="glass-card rounded-xl px-4 py-3 text-center min-w-[60px]">
-                          <span className="block text-2xl sm:text-3xl font-bold text-white tabular-nums">{item.val.toString().padStart(2, '0')}</span>
-                          <span className="block text-[10px] text-white/50 uppercase tracking-wider mt-0.5">{item.label}</span>
+                        {i > 0 && <span className="text-white/20 font-light text-lg">:</span>}
+                        <div className="glass-card rounded-xl px-3.5 py-2.5 text-center min-w-[56px]">
+                          <span className="block text-2xl sm:text-[28px] font-bold text-white tabular-nums leading-none">{item.val.toString().padStart(2, '0')}</span>
+                          <span className="block text-[10px] text-white/40 uppercase tracking-wider mt-1">{item.label}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
                 {!hasCountdown && !settings.schedule?.next_session && (
-                  <p className="text-white/60 text-sm mb-4">Le quiz est actuellement ferm&eacute;. Revenez bient&ocirc;t !</p>
+                  <p className="text-white/50 text-sm mb-4">Le quiz est actuellement fermé. Revenez bientôt !</p>
                 )}
               </div>
             )}
 
-            {/* CTAs */}
-            <div className="flex flex-wrap gap-4 items-center">
-              <button onClick={playQuiz} className="btn-cta inline-flex items-center gap-2.5 px-9 py-4 rounded-full font-bold text-base sm:text-lg text-primary-dark">
-                &#x1F3AE; Jouer au Quiz
-              </button>
-              <a href="#inscription" className="group inline-flex items-center px-7 py-3.5 rounded-full font-semibold text-sm text-white border-2 border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/15 hover:border-white/40 transition-all hover:-translate-y-0.5">
-                S&apos;inscrire
-                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-              </a>
-            </div>
+            {/* Live status */}
+            {!checking && settings?.is_open && (
+              <div className="flex items-center gap-2 mb-6 animate-[fadeIn_0.5s_ease_0.3s_backwards]">
+                <span className="flex items-center gap-1.5 bg-green/15 border border-green/25 text-green rounded-full px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider">
+                  <span className="w-2 h-2 bg-green rounded-full animate-pulse" />
+                  Quiz en cours
+                </span>
+              </div>
+            )}
 
-            {/* Trust stats */}
-            <div className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10">
-              {[
-                { value: '1000+', label: 'Questions' },
-                { value: '140+', label: 'Joueurs' },
-                { value: '50$', label: 'À gagner' },
-              ].map((stat, i) => (
-                <div key={stat.label} className="animate-[count-up_0.5s_ease_backwards]" style={{ animationDelay: `${0.8 + i * 0.15}s` }}>
-                  <span className="block text-xl sm:text-2xl font-bold text-gold">{stat.value}</span>
-                  <span className="block text-xs text-white/50">{stat.label}</span>
-                </div>
-              ))}
+            {/* CTAs */}
+            <div className="flex flex-wrap gap-3 items-center">
+              <button onClick={playQuiz} className="btn-cta inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full font-bold text-[15px] text-primary-dark">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Jouer au Quiz
+              </button>
+              <a href="#comment-ca-marche" className="group inline-flex items-center px-6 py-3.5 rounded-full font-semibold text-sm text-white/80 border border-white/15 hover:bg-white/5 hover:border-white/25 hover:text-white transition-all">
+                Comment ça marche
+                <svg className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </a>
             </div>
           </div>
 
-          {/* Hero image */}
-          <div className="relative flex justify-center lg:justify-end animate-[slideInRight_0.8s_ease_0.2s_backwards]">
-            <div className="relative" style={{ width: `min(${heroImageSize || 440}px, 90vw)` }}>
-              {/* Glow ring behind image */}
-              <div className="absolute inset-0 rounded-full animate-[glow-pulse_3s_ease-in-out_infinite]" style={{ filter: 'blur(40px)', background: 'radial-gradient(circle, rgba(255,184,0,0.2) 0%, transparent 70%)' }} />
-
-              {/* Decorative ring */}
-              <div className="absolute -inset-6 rounded-full border-2 border-dashed border-gold/15 animate-[spin_30s_linear_infinite]" />
+          {/* Hero visual */}
+          <div className="relative flex justify-center lg:justify-end animate-[slideInRight_0.7s_ease_0.15s_backwards]">
+            <div className="relative" style={{ width: 'min(420px, 85vw)' }}>
+              {/* Glow behind */}
+              <div className="absolute inset-0 rounded-full animate-[glow-pulse_4s_ease-in-out_infinite]" style={{ filter: 'blur(50px)', background: 'radial-gradient(circle, rgba(255,184,0,0.15) 0%, transparent 65%)' }} />
 
               {/* Main image */}
-              <img src={heroImage} alt="Quiz participant" className="w-full h-auto relative z-10 drop-shadow-2xl" loading="eager" />
+              <img src={heroImage} alt="Participant au quiz Muana Mayele" className="w-full h-auto relative z-10 drop-shadow-2xl" loading="eager" />
 
-              {/* Floating elements around image */}
-              <div className="absolute -top-2 -left-4 w-14 h-14 glass-card rounded-2xl flex items-center justify-center animate-[float_3s_ease-in-out_infinite] z-20">
-                <span className="text-2xl">&#x1F9E0;</span>
+              {/* Floating cards */}
+              <div className="absolute -top-2 -left-2 sm:-left-6 glass-card rounded-xl px-3 py-2 flex items-center gap-2 animate-[float_4s_ease-in-out_infinite] z-20">
+                <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-white text-xs font-semibold block leading-tight">20 questions</span>
+                  <span className="text-white/40 text-[10px]">par session</span>
+                </div>
               </div>
-              <div className="absolute top-1/4 -right-6 w-12 h-12 glass-card rounded-2xl flex items-center justify-center animate-[float_4s_ease-in-out_infinite_0.5s] z-20">
-                <span className="text-xl">&#x2B50;</span>
+
+              <div className="absolute top-1/3 -right-3 sm:-right-8 glass-card rounded-xl px-3 py-2 flex items-center gap-2 animate-[float_5s_ease-in-out_infinite_1s] z-20">
+                <div className="w-8 h-8 rounded-lg bg-green/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-white text-xs font-semibold block leading-tight">50 $</span>
+                  <span className="text-white/40 text-[10px]">à gagner</span>
+                </div>
               </div>
-              <div className="absolute bottom-[15%] -left-5 w-12 h-12 glass-card rounded-2xl flex items-center justify-center animate-[float_3.5s_ease-in-out_infinite_1s] z-20">
-                <span className="text-xl">&#x1F3C6;</span>
+
+              <div className="absolute bottom-[10%] -left-4 sm:-left-8 glass-card rounded-xl px-3 py-2 flex items-center gap-2 animate-[float_4.5s_ease-in-out_infinite_0.5s] z-20">
+                <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-white text-xs font-semibold block leading-tight">50 pts</span>
+                  <span className="text-white/40 text-[10px]">par bonne réponse</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Wave divider */}
-      <div className="absolute bottom-0 left-0 w-full z-20 leading-[0]">
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" fill="none" className="block w-full h-16">
-          <path d="M0 30C180 10 360 50 540 30C720 10 900 50 1080 30C1260 10 1350 40 1440 30V60H0V30Z" fill="#001f52" />
-        </svg>
       </div>
     </section>
   );

@@ -1,68 +1,108 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #000d2b 0%, #000a1f 100%)' }}>
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-      </div>
+    <footer className="surface-deepest relative">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
-          <div>
-            <a href="/" className="flex items-center gap-2 text-xl font-bold text-white mb-4">
-              <span className="text-2xl">&#x1F33F;</span>
-              <span>Muana Mayele</span>
-            </a>
-            <p className="text-white/50 text-sm leading-relaxed">
-              Le quiz qui met des &eacute;toiles dans vos t&ecirc;tes.
+          <div className="lg:col-span-1">
+            <Link href="/" className="flex items-center gap-2.5 text-white font-bold text-lg mb-4">
+              <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-gold">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <span className="tracking-tight">Muana Mayele</span>
+            </Link>
+            <p className="text-white/40 text-sm leading-relaxed max-w-[260px]">
+              Le quiz interactif qui réunit, challenge et récompense les Congolais.
             </p>
           </div>
 
-          {/* Menu */}
+          {/* Navigation */}
           <div>
-            <h4 className="font-semibold text-gold mb-4 text-xs uppercase tracking-widest">Menu</h4>
+            <h4 className="font-semibold text-white/70 mb-4 text-xs uppercase tracking-widest">Navigation</h4>
             <ul className="space-y-2.5">
-              <li><a href="/" className="text-white/50 hover:text-white text-sm transition-colors hover:translate-x-1 inline-block">Accueil</a></li>
-              <li><a href="#classement" className="text-white/50 hover:text-white text-sm transition-colors hover:translate-x-1 inline-block">Classement</a></li>
-              <li><a href="#regles" className="text-white/50 hover:text-white text-sm transition-colors hover:translate-x-1 inline-block">R&egrave;gles</a></li>
+              <FooterLink href="/">Accueil</FooterLink>
+              <FooterLink href="#comment-ca-marche">Comment ça marche</FooterLink>
+              <FooterLink href="#classement">Classement</FooterLink>
+              <FooterLink href="#inscription">S&apos;inscrire</FooterLink>
             </ul>
           </div>
 
-          {/* Aide */}
+          {/* Informations */}
           <div>
-            <h4 className="font-semibold text-gold mb-4 text-xs uppercase tracking-widest">Aide</h4>
+            <h4 className="font-semibold text-white/70 mb-4 text-xs uppercase tracking-widest">Informations</h4>
             <ul className="space-y-2.5">
-              <li><a href="#" className="text-white/50 hover:text-white text-sm transition-colors">Conditions d&apos;utilisation</a></li>
-              <li><a href="#" className="text-white/50 hover:text-white text-sm transition-colors">Politique de confidentialit&eacute;</a></li>
-              <li><a href="#" className="text-white/50 hover:text-white text-sm transition-colors">Contact</a></li>
+              <FooterLink href="#regles">Règles du quiz</FooterLink>
+              <FooterLink href="#">Conditions d&apos;utilisation</FooterLink>
+              <FooterLink href="#">Politique de confidentialité</FooterLink>
+              <FooterLink href="#">Contact</FooterLink>
             </ul>
           </div>
 
           {/* Social */}
           <div>
-            <h4 className="font-semibold text-gold mb-4 text-xs uppercase tracking-widest">Suivez-nous</h4>
-            <div className="flex gap-3">
-              <a href="#" className="w-10 h-10 glass-card rounded-xl flex items-center justify-center hover:bg-white/15 transition-all hover:-translate-y-0.5" aria-label="Facebook">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white/70"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-              </a>
-              <a href="#" className="w-10 h-10 glass-card rounded-xl flex items-center justify-center hover:bg-white/15 transition-all hover:-translate-y-0.5" aria-label="Twitter">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white/70"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
-              </a>
-              <a href="#" className="w-10 h-10 glass-card rounded-xl flex items-center justify-center hover:bg-white/15 transition-all hover:-translate-y-0.5" aria-label="Instagram">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-white/70"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-              </a>
+            <h4 className="font-semibold text-white/70 mb-4 text-xs uppercase tracking-widest">Suivez-nous</h4>
+            <div className="flex gap-2.5">
+              <SocialIcon href="https://facebook.com" label="Facebook">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </SocialIcon>
+              <SocialIcon href="https://instagram.com" label="Instagram">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </SocialIcon>
+              <SocialIcon href="https://tiktok.com" label="TikTok">
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+              </SocialIcon>
             </div>
+            <p className="text-white/25 text-xs mt-4 leading-relaxed">
+              Résultats, annonces et meilleurs moments du quiz.
+            </p>
           </div>
         </div>
 
-        <div className="border-t border-white/[0.06] pt-6 text-center">
-          <p className="text-white/30 text-sm">&copy; {year} Muana Mayele. Tous droits r&eacute;serv&eacute;s.</p>
+        {/* Bottom bar */}
+        <div className="border-t border-white/[0.06] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-white/25 text-sm">&copy; {year} Muana Mayele. Tous droits réservés.</p>
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-3.5 rounded-[2px] overflow-hidden flex flex-col">
+              <div className="flex-1 bg-[#007FFF]" />
+              <div className="flex-1 bg-[#CE1126]" />
+              <div className="h-[2px] bg-[#F7D618]" />
+            </div>
+            <span className="text-white/25 text-xs">RD Congo</span>
+          </div>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <li>
+      <Link href={href} className="text-white/35 hover:text-white/70 text-sm transition-colors inline-flex items-center gap-1 group">
+        <svg className="w-3 h-3 opacity-0 -ml-4 group-hover:opacity-50 group-hover:ml-0 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+        {children}
+      </Link>
+    </li>
+  );
+}
+
+function SocialIcon({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+      className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center hover:bg-white/[0.08] hover:border-white/[0.12] transition-all hover:-translate-y-0.5 group">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4.5 h-4.5 text-white/40 group-hover:text-white/70 transition-colors">
+        {children}
+      </svg>
+    </a>
   );
 }
