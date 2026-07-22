@@ -24,6 +24,12 @@ export async function POST(req: Request) {
     if (!supabaseUrl || !supabaseKey) return errorResponse('Storage not configured', 500);
 
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data: buckets } = await supabase.storage.listBuckets();
+    if (!buckets?.find(b => b.name === 'site-content')) {
+      await supabase.storage.createBucket('site-content', { public: true });
+    }
+
     const ext = file.name.split('.').pop() || 'png';
     const storagePath = `section_${sectionId}_${Date.now()}.${ext}`;
     const buffer = Buffer.from(await file.arrayBuffer());
