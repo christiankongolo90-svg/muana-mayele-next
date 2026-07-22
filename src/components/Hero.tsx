@@ -91,9 +91,9 @@ export default function Hero() {
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'url(/part_of_back.png)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-28 pb-20 sm:pt-36 sm:pb-28">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Text */}
-          <div className="text-white max-w-xl animate-[slideInLeft_0.7s_ease]">
+          <div className="text-white animate-[slideInLeft_0.7s_ease]">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white/[0.07] border border-white/[0.12] rounded-full px-4 py-1.5 mb-6">
               <span className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
@@ -105,7 +105,7 @@ export default function Hero() {
               <span className="text-gold">Affrontez la communauté.</span>
             </h1>
 
-            <p className="text-white/60 text-base sm:text-lg leading-relaxed mb-8 max-w-[440px]">
+            <p className="text-white/60 text-base sm:text-lg leading-relaxed mb-8">
               Participez au quiz en direct, répondez rapidement et grimpez au classement national. Des récompenses attendent les meilleurs.
             </p>
 
@@ -176,8 +176,8 @@ export default function Hero() {
           </div>
 
           {/* Hero visual */}
-          <div className="relative flex justify-center lg:justify-end animate-[slideInRight_0.7s_ease_0.15s_backwards]">
-            <div className="relative" style={{ width: 'min(420px, 85vw)' }}>
+          <div className="relative flex justify-center lg:justify-center animate-[slideInRight_0.7s_ease_0.15s_backwards]">
+            <div className="relative w-full max-w-[500px]">
               {/* Glow behind */}
               <div className="absolute inset-0 rounded-full animate-[glow-pulse_4s_ease-in-out_infinite]" style={{ filter: 'blur(50px)', background: 'radial-gradient(circle, rgba(255,184,0,0.15) 0%, transparent 65%)' }} />
 
