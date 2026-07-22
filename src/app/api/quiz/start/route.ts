@@ -40,19 +40,24 @@ export async function POST(req: Request) {
     );
     if (existing.rows.length > 0) return errorResponse('Vous avez déjà participé au quiz durant cette session. Revenez à la prochaine session !', 429);
 
-    // Get previously answered questions
-    const prevRes = await pool.query('SELECT DISTINCT qa.question_id FROM quiz_answers qa JOIN quiz_sessions qs ON qa.session_id = qs.id WHERE qs.user_id = $1', [userId]);
+    // Exclude questions answered within last 5 months
+    const prevRes = await pool.query(
+      `SELECT DISTINCT qa.question_id FROM quiz_answers qa
+       JOIN quiz_sessions qs ON qa.session_id = qs.id
+       WHERE qs.user_id = $1 AND qs.started_at >= NOW() - INTERVAL '5 months'`,
+      [userId]
+    );
     let excludeIds = prevRes.rows.map((r: any) => r.question_id);
 
-    // Check if enough unseen
+    // Check if enough unseen within the 5-month window
     if (excludeIds.length > 0) {
       const countRes = await pool.query('SELECT COUNT(*) as c FROM questions WHERE is_active = TRUE AND id != ALL($1::int[])', [excludeIds]);
       if (Number(countRes.rows[0].c) < QUIZ_TOTAL_QUESTIONS) excludeIds = [];
     }
 
-    // Select weighted: 20% easy, 40% medium, 40% hard
+    // Select weighted: 10% easy, 30% medium, 60% hard
     const allQuestions: any[] = [];
-    for (const [diff, count] of [['easy', 4], ['medium', 8], ['hard', 8]] as const) {
+    for (const [diff, count] of [['easy', 2], ['medium', 6], ['hard', 12]] as const) {
       const params: any[] = [diff, count];
       let q = 'SELECT q.id, q.question, q.options, q.correct_answer, q.difficulty, c.name as category FROM questions q JOIN categories c ON q.category_id = c.id WHERE q.is_active = TRUE AND q.difficulty = $1';
       if (excludeIds.length > 0) { q += ' AND q.id != ALL($3::int[])'; params.push(excludeIds); }
