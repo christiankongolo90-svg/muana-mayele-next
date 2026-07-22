@@ -40,6 +40,7 @@ interface EditorCtx {
   save: () => Promise<void>;
   publish: () => Promise<void>;
   loadContent: (userId: string) => Promise<void>;
+  adminUserId: string;
 
   getSelected: () => { kind: 'section'; section: Section } | { kind: 'block'; section: Section; block: Block } | null;
 }
@@ -65,6 +66,7 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
   const [isPublishing, setPublishing] = useState(false);
   const [isLoaded, setLoaded] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [adminUserId, setAdminUserId] = useState<string>('1');
 
   const pushHistory = useCallback((prev: PageContent) => {
     setHistory(h => [...h.slice(-(MAX_HISTORY - 1)), prev]);
@@ -224,6 +226,7 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
 
   // ── Persistence ──
   const loadContent = useCallback(async (userId: string) => {
+    setAdminUserId(userId);
     try {
       // Ensure the page_versions table exists
       await fetch('/api/admin/editor/migrate', {
@@ -252,7 +255,7 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
     try {
       const res = await fetch('/api/admin/editor', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-User-Id': '1' },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-User-Id': adminUserId },
         body: JSON.stringify({ slug, content }),
       });
       const data = await res.json();
@@ -266,14 +269,14 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
       alert('Erreur lors de la sauvegarde: ' + (e.message || 'Erreur réseau'));
     }
     setSaving(false);
-  }, [slug, content]);
+  }, [slug, content, adminUserId]);
 
   const publish = useCallback(async () => {
     setPublishing(true);
     try {
       const res = await fetch('/api/admin/editor/publish', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-User-Id': '1' },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-User-Id': adminUserId },
         body: JSON.stringify({ slug, content }),
       });
       const data = await res.json();
@@ -288,7 +291,7 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
       alert('Erreur lors de la publication: ' + (e.message || 'Erreur réseau'));
     }
     setPublishing(false);
-  }, [slug, content]);
+  }, [slug, content, adminUserId]);
 
   return (
     <Ctx.Provider value={{
@@ -297,7 +300,7 @@ export function EditorProvider({ children, slug = 'home' }: { children: ReactNod
       updateBlockContent, updateBlockStyles, updateSectionStyles, updateSectionLabel,
       addBlock, addSection, removeElement, duplicateSection, moveSection, toggleSectionHidden,
       undo, redo, canUndo: history.length > 0, canRedo: future.length > 0,
-      save, publish, loadContent,
+      save, publish, loadContent, adminUserId,
       getSelected,
     }}>
       {children}

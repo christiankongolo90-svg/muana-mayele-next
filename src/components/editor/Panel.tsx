@@ -5,7 +5,7 @@ import { useEditor } from '@/lib/editor/context';
 import type { ElementStyles } from '@/lib/editor/types';
 
 export default function EditorPanel() {
-  const { getSelected, updateBlockStyles, updateBlockContent, updateSectionStyles, updateSectionLabel, selectedId } = useEditor();
+  const { getSelected, updateBlockStyles, updateBlockContent, updateSectionStyles, updateSectionLabel, selectedId, adminUserId } = useEditor();
   const sel = getSelected();
 
   if (!sel) {
@@ -46,6 +46,7 @@ export default function EditorPanel() {
             <ImageUpload
               src={sel.block.content.src}
               onChange={src => updateBlockContent(sel.block.id, { ...sel.block.content, src })}
+              adminUserId={adminUserId}
             />
             <TextInput value={sel.block.content.alt || ''} onChange={v => updateBlockContent(sel.block.id, { ...sel.block.content, alt: v })} placeholder="Texte alternatif" />
           </Field>
@@ -198,7 +199,7 @@ function Select({ value, onChange, options }: { value: string; onChange: (v: str
   );
 }
 
-function ImageUpload({ src, onChange }: { src: string; onChange: (url: string) => void }) {
+function ImageUpload({ src, onChange, adminUserId }: { src: string; onChange: (url: string) => void; adminUserId: string }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -211,7 +212,7 @@ function ImageUpload({ src, onChange }: { src: string; onChange: (url: string) =
       fd.append('image', file);
       const res = await fetch('/api/admin/editor/upload', {
         method: 'POST',
-        headers: { 'X-Admin-User-Id': '1' },
+        headers: { 'X-Admin-User-Id': adminUserId },
         body: fd,
       });
       const data = await res.json();
