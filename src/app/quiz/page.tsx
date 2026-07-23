@@ -278,7 +278,7 @@ export default function QuizPage() {
               {showFeedback && (
                 <div className={`mt-4 flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium animate-[fadeIn_0.2s_ease] ${isCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                   <span className="text-xl">{isCorrect ? '\u{1F389}' : '\u{1F614}'}</span>
-                  <span>{isCorrect ? 'Bonne réponse ! +{state.pointsPerCorrect} points' : 'Mauvaise réponse'}</span>
+                  <span>{isCorrect ? `Bonne réponse ! +${state.pointsPerCorrect} points` : 'Mauvaise réponse'}</span>
                 </div>
               )}
 
